@@ -1,0 +1,210 @@
+﻿@{
+    ViewBag.Title = "Approved";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <link rel="stylesheet" type="text/css" href="~/Content/select2/select2.css" />
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 form-group">
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Wallet Request History</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-2 col-md-2 form-group">
+                        <select id="ddrange" onchange="OnDateChange()" class="select2" name="ddrange">
+                            <option value="0" selected>Today</option>
+                            <option value="1">Custom Date</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-2 form-group" id="divfromdate">
+                        <input type="text" class="form-control" id="fromdate" name="fromdate" placeholder="From Date">
+                    </div>
+                    <div class="col-lg-2 col-md-2 form-group" id="divtodate">
+                        <input type="text" class="form-control" id="todate" name="todate" placeholder="To Date">
+                    </div>
+                    <div class="col-lg-2 col-md-2 form-group">
+                        <select id="ddData" class="select2" name="ddData">
+                            <option value="0" selected>Live</option>
+                            <option value="1">Archive</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-2 form-group">
+                        <button type="button" onclick="SearchData();" class="btn btn-primary  btn m-b-5">Search</button>
+                        <button type="button" onclick="ClearText();" class="btn btn-danger btn m-b-5">Clear</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <table id="tblDisplay" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>ENTRY DATE</th>
+                                    <th>USER NAME</th>
+                                    <th>MODE</th>
+                                    <th>BANK NAME</th>
+                                    <th>A/C NO</th>
+                                    <th>AMOUNT</th>
+                                    <th>REF.ID</th>
+                                    <th>REMAKRS</th>
+                                    <th>USER LEVEL</th>
+                                    <th>STATUS</th>
+                                    <th>ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog modal-sm">
+        <form id="frmApproved">
+            <input type="hidden" id="wr_id" name="wr_id" />
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="mySmallModalLabel">Are you sure?</h4>
+                </div>
+                <div id="dvmessage"></div>
+                <div id="dvindexmessage"></div>
+                <div class="modal-body">
+                    <input type="password" maxlength="30" class="form-control" placeholder="Login Password" id="loginpwd" name="loginpwd" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" onclick="Approved();" class="btn btn-primary">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Content/select2/select2.min.js"></script>
+    <script type="text/javascript">
+        var tablelist;
+        $(document).ready(function () {
+            $('#tblDisplay').DataTable();
+            $("#divfromdate").css('display', 'none');
+            $("#divtodate").css('display', 'none');
+            $('.select2').select2({
+                width: '100%'
+            });
+            $('.input-daterange input').each(function () {
+                $(this).datepicker({
+                    format: 'dd/mm/yyyy',
+                });
+            });
+            $("#fromdate").datepicker({
+                format: 'dd/mm/yyyy',
+            });
+            $("#todate").datepicker({
+                format: 'dd/mm/yyyy',
+            });
+            SearchData();
+        });
+        function OnDateChange() {
+            if ($("#ddrange").val() == "0") {
+                $("#divfromdate").css('display', 'none');
+                $("#divtodate").css('display', 'none');
+            }
+            else if ($("#ddrange").val() == "1") {
+                $("#divfromdate").css('display', 'block');
+                $("#divtodate").css('display', 'block');
+            }
+        }
+        function SearchData() {
+            tablelist = $('#tblDisplay').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "destroy": true,
+                "responsive": true,
+                "searching": true,
+                "sPaginationType": "full_numbers",
+                "info": true,
+                "lengthMenu": [[20, 50, 100, 200], [20, 50, 100, 200]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))WalletRequest/GetAll",
+                    "type": "POST", "datatype": "json",
+                    "data": function (d) {
+                        d.ddrange = $("#ddrange").val(),
+                        d.fromdate = $("#fromdate").val(),
+                        d.todate = $("#todate").val(),
+                        d.ddData = $("#ddData").val();
+                    }
+                },
+                "aoColumns": [
+                    {
+                        data: "wr_id", "bSearcable": false, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return '<label class="form-label">' + formatDate(oObj.SystemDateTime.substring(6, oObj.SystemDateTime.length - 2)) + '</label>';
+                        }
+                    },
+                    { data: "UserName", "bSearchable": true, "orderable": true, "orderable": true },
+                    { data: "Mode", "bSearchable": true, "orderable": true, "orderable": true },
+                    { data: "wr_bankname", "bSearchable": false, "orderable": false, "orderable": false },
+                    { data: "wr_accountno", "bSearchable": false, "orderable": false, "orderable": false },
+                    { data: "wr_amount", "bSearchable": false, "orderable": false, "orderable": false },
+                    { data: "wr_refrenceid", "bSearchable": false, "orderable": false, "orderable": false },
+                    { data: "wr_remakrs", "bSearchable": false, "orderable": false, "orderable": false },
+                    { data: "UserLevel", "bSearchable": false, "orderable": false, "orderable": false },
+                     {
+                         data: "WalletStatus", "bSearcable": true, "bSortable": true, "mRender": function (data, type, oObj) {
+                             if (oObj.WalletStatus == 'Pending') {
+                                 return "<span style='color:red'>Pending</span>"
+                             } else { return "<span style='color:green'>Approved</span>" }
+                         }
+                     },
+                       {
+                           data: "wr_id", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                               if (oObj.wr_status == 0) {
+                                   return '<button type="button" class="btn btn-info btn-xs" onclick="ShowPopup(/' + oObj.wr_id + '/)">Approved</button>'
+                               }
+                               else { return "N/A" }
+                           },
+                       },
+                ],
+            });
+        }
+        function ClearText() {
+            $("#divfromdate").css('display', 'none');
+            $("#divtodate").css('display', 'none');
+            $("#fromdate").val('');
+            $("#todate").val('');
+            $("#ddrange").val('0');
+            $('#ddrange').trigger('change');
+        }
+        function ShowPopup(id) {
+            $("#dvindexmessage").empty();
+            $("#dvmessage").empty();
+            $("#wr_id").val(id);
+            $('#myModal').modal('show');
+        }
+        function Approved() {
+
+            waitingDialog.show("Please Wait...");
+
+            var frmModel2 = $("#frmApproved").serialize();
+            $.post("../WalletRequest/Approved", frmModel2, function (resdata) {
+                waitingDialog.hide();
+                if (resdata.EntryStatus == true) {
+                    tablelist.draw();
+                    $("#dvmessage").empty();
+                    $('#myModal').modal('hide')
+                    swal("FUND TRANSFERRED SUCCESSFULL", "", "success")
+                    tablelist.fnDraw();
+                } else {
+                    $("#dvindexmessage").empty();
+                    $("#dvmessage").empty().append(resdata.MessageHtml);
+                }
+            });
+        }
+    </script>
+}

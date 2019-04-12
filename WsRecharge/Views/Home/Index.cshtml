@@ -1,0 +1,433 @@
+﻿@model WsRecharge.Models.DashBoardModels
+@{
+    ViewBag.Title = "Home Page";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section styles{
+    <link rel="stylesheet" type="text/css" href="~/Content/select2/select2.css" />
+}
+
+<div class="row">
+    <div class="col-md-9">
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">QUICK RECHARGE</h3>
+            </div>
+            <div class="panel-body">
+                <form id="frm_recharge" role="form" class="p-20">
+                    <div class="row">
+                        <div class="form-group col-md-6">
+                            <label for="m_service">Select Service :</label>
+                            <select class="select2" id="m_service" name="service" onchange="bindOperator()">
+                                <option value="00000000-0000-0000-0000-000000000000">Select Service</option>
+                                @if (ViewBag.ServiceMaster != null)
+                                {
+                                    foreach (var s in ViewBag.ServiceMaster)
+                                    {
+                                        <option value="@s.serviceid">@s.servicename</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="m_operator">Select Operator :</label>
+                            <select class="select2" id="m_operator" name="operatorcode">
+                                <option value="00000000-0000-0000-0000-000000000000">Select Operator</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-4" id="f_numbertorecharge">
+                            <label for="m_mobilenumber" id="m_mobilenumber_txt"></label>
+                            <input type="text" class="form-control numberonly" id="m_mobilenumber" name="numbertorecharge" maxlength="10">
+                        </div>
+                        <div class="form-group col-md-4" id="f_optionalparam">
+                            <label for="optionalparam" id="optionalparam_txt"></label>
+                            <input type="text" class="form-control numberonly" id="m_optionalparam" name="optionalparam" placeholder="Mobile Number">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="m_amount">Amount :</label>
+                            <input type="text" class="form-control numberonly" id="m_amount" name="amount" placeholder="Amount">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-12">
+                            <label class="control-label">Recharge Type : </label>
+                            <div class="radio-inline">
+                                <label class="cr-styled" for="reqtype_1">
+                                    <input type="radio" id="reqtype_1" name="reqtype" value="0" checked>
+                                    <i class="fa"></i>
+                                    Normal
+                                </label>
+                            </div>
+                            <div class="radio-inline">
+                                <label class="cr-styled" for="reqtype_2">
+                                    <input type="radio" id="reqtype_2" name="reqtype" value="1">
+                                    <i class="fa"></i>
+                                    Special
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="form-group col-md-4">
+                            <button type="button" id="processrecharge" class="btn btn-custom">Proceed to Recharge</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <ul class="list-group">
+            <li class="list-group-item active">
+                <strong>STATUS</strong>
+                <button class="btn btn-inverse m-b-5 btn-xs btn-rounded pull-right" onclick="refreshStatastics()">
+                    <i class="zmdi zmdi-refresh"></i>&nbsp;
+                    Refresh
+                </button>
+            </li>
+            <li class="list-group-item">
+                <span class="badge bg-primary"><strong id="totlacustomer">@Model.TotalCustomers</strong></span>
+                <strong>Total Customers :</strong>
+            </li>
+            <li class="list-group-item">
+                <span class="badge bg-success"><strong id="totalbalance">@Model.TotalBalance</strong></span>
+                <strong>Account Balance :</strong>
+            </li>
+            <li class="list-group-item">
+                <span class="badge bg-pink"><strong id="totalfailed">@Model.TotalFailed</strong></span>
+                <strong>Today's Failed :</strong>
+            </li>
+            <li class="list-group-item">
+                <span class="badge bg-success"><strong id="totalsuccess">@Model.TotalSuccess</strong></span>
+                <strong>Today's Success :</strong>
+            </li>
+            <li class="list-group-item">
+                <span class="badge bg-pink"><strong id="walletrequest">@Model.WalletRequests</strong></span>
+                <strong>Pending Wallet Request :</strong>
+            </li>
+        </ul>
+    </div>
+
+    <div class="col-md-12">
+        <div class="panel panel-color panel-danger">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    PENDING RECHARGE
+                    <button class="btn btn-inverse m-b-5 btn-xs btn-rounded pull-right" onclick="refreshPending()">
+                        <i class="zmdi zmdi-refresh"></i>&nbsp;
+                        Refresh
+                    </button>
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="col-md-12 col-sm-12 col-xs-12">
+                    <table id="tblDisplay" class="table table-striped table-bordered " cellspacing="0" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Operator</th>
+                                <th>Mobile</th>
+                                <th>Amount</th>
+                                <th>Req. User</th>
+                                <th>Req. Type</th>
+                                <th>Request By</th>
+                                <th>Request DateTime</th>
+                                <th style="width:100px;">Operation</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="modalChange" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="custom-width-modalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <form id="frmStatus">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="modal-label"></h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="row">
+                        <input type="hidden" id="accountid" name="accountid" />
+                        <input type="hidden" id="status" name="status" />
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="transid" class="control-label">Operator Txn. ID (optional) :</label>
+                                <input type="text" class="form-control" id="transid" maxlength="200" name="transid" placeholder="Operator Txn. ID ">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" onclick="ChangeStatus();" class="btn btn-primary">Save Status</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Content/select2/select2.min.js"></script>
+    <script type="text/javascript">
+        var tablelist;
+        var operators;
+
+        $(document).ready(function () {
+            $('.select2').select2({
+                width: '100%'
+            });
+
+            $("#f_optionalparam").hide();
+            $("#f_numbertorecharge").hide();
+
+            getPendingRechareg();
+        });
+
+        function bindOperator() {
+
+            if ($("#m_service").val() != "00000000-0000-0000-0000-000000000000") {
+                waitingDialog.show('Loading Operaotrs...', { dialogSize: 'sm', progressType: 'info' });
+                var element = $("#m_operator");
+                element.empty();
+                $.getJSON("../Recharge/GetOperators/" + $("#m_service").val(), function (json) {
+                    waitingDialog.hide();
+                    if (json.MessageResult.EntryStatus == true) {
+                        element.append('<option value="0">Select Operator</option>');
+                        operators = json.lstEntity;
+                        for (var i = 0; i < json.lstEntity.length; i++) {
+                            element.append('<option value="' + json.lstEntity[i].operatorcode + '">' + json.lstEntity[i].operatorname + '</option>');
+                        }
+                        element.trigger('change');
+                    } else {
+                        swal("Error", json.MessageResult.Message, "error");
+                    }
+                });
+            }
+        }
+
+        $("#processrecharge").click(function () {
+
+            var amount = $("#m_amount").val();
+            var mobile = $("#m_mobilenumber").val();
+
+            if ($("#m_service").val() == '00000000-0000-0000-0000-000000000000') {
+                swal({
+                    title: "Please select service for recharge.",
+                    text: "",
+                    type: "error",
+                });
+            }
+            else if ($("#m_operator").val() == '0') {
+                swal({
+                    title: "Please select operator for recharge.",
+                    text: "",
+                    type: "error",
+                });
+            }
+            else if (mobile == '') {
+                swal({
+                    title: "Please add number to recharge.",
+                    text: "",
+                    type: "error",
+                });
+            }
+            else if (amount == '') {
+                // swal("Invalid Data", "Please add recharge amount.", "error");
+                swal({
+                    title: "Please add recharge amount.",
+                    text: "",
+                    type: "error",
+                });
+            } else {
+
+                var msg = "Do you wish to continue with RECHARGE of Rs. " + amount + " For Mobile No " + mobile + " ?";
+
+                swal(msg, "", "warning");
+
+                swal({
+                    title: msg,
+                    text: "this will deduct above amount from your balance",
+                    type: "warning",
+                    showCancelButton: true,
+                    confirmButtonClass: "btn-danger",
+                    confirmButtonText: "Process Recharge",
+                    closeOnConfirm: true
+                },
+                    function () {
+                        waitingDialog.show();
+                        var frmModel = $("#frm_recharge").serialize();
+                        $.post("../Recharge/doRecharge/", frmModel, function (json) {
+                            waitingDialog.hide();
+                            if (json.EntryStatus == true) {
+                                swal("Success", json.Message , "success");
+                            } else {
+                                swal("Error", json.Message, "error");
+                            }
+                            refreshPending();
+                            refreshStatastics();
+                            clearData();
+                        });
+                    });
+            }
+        });
+
+        $("#m_operator").change(function () {
+
+            var selected = $("#m_operator").val();
+
+            var selectedoperator = $.grep(operators, function (e) {
+                return e.operatorcode == selected;
+            });
+
+            if (selectedoperator[0] != null)
+            {
+                $("#f_numbertorecharge").show();
+
+                $("#m_mobilenumber_txt").text(selectedoperator[0].auth_name + " :");
+                $("#m_mobilenumber").attr("placeholder", selectedoperator[0].auth_name);
+
+                if (selectedoperator[0].auth_name2 != "N") {
+                    $("#f_optionalparam").show();
+                    $("#optionalparam_txt").text(selectedoperator[0].auth_name2 + " :");
+                    $("#m_optionalparam").attr("placeholder", selectedoperator[0].auth_name2);
+                }
+            }
+        });
+
+        function clearData() {
+            $("#m_mobilenumber").val("");
+            $("#m_amount").val("");
+
+            $("#m_service").val("00000000-0000-0000-0000-000000000000");
+            $("#m_service").trigger('change');
+
+            $("#m_circle").val("00000000-0000-0000-0000-000000000000");
+            $("#m_circle").trigger('change');
+
+            var element = $("#m_operator");
+            element.empty();
+            element.append('<option value="00000000-0000-0000-0000-000000000000">Select Operator</option>');
+            element.trigger('change');
+        }
+
+        function refreshPending() {
+            tablelist.destroy();
+            getPendingRechareg();
+        }
+
+        function refreshStatastics() {
+            $.getJSON("/Home/LoadStatastics", function (json) {
+                $("#totlacustomer").text(json.TotalCustomers);
+                $("#totalbalance").text(json.TotalBalance);
+                $("#totalfailed").text(json.TotalFailed);
+                $("#totalsuccess").text(json.TotalSuccess);
+                $("#walletrequest").text(json.WalletRequests);
+            });
+        }
+
+        function getPendingRechareg()
+        {
+             tablelist = $('#tblDisplay').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "responsive": true,
+                "sPaginationType": "full_numbers",
+                "info": true,
+                 "lengthMenu": [[5, 10,15], [5, 10,15]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))Recharge/getPendingRecharge",
+                    "type": "POST", "datatype": "json"
+                },
+                "aoColumns": [
+                    { data: "operatorname", "bSearchable": false, "bSortable": false, },
+                    { data: "numbertorecharge", "bSearchable": true, "bSortable": false,},
+                    { data: "amount", "bSearchable": true, "bSortable": false,},
+                    { data: "requestby", "bSearchable": true, "bSortable": false, },
+                    {
+                        data: "reqtypetext", "bSearchable": false, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return '<span>' + oObj.reqtypetext + '</span>';
+                        }
+                    },
+                    {
+                        data: "reqvia", "bSearchable": false, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return '<span>' + oObj.reqvia +'</span>';
+                        }
+                    },
+                    {
+                        data: "CreatedDateTime", "bSearchable": false, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return '<span>' + formatDate(oObj.CreatedDateTime.substring(6, oObj.CreatedDateTime.length - 2)) + '</span>';
+                        }
+                    },
+                    {
+                        data: "rechargeid", "bSearchable": false, "bSortable": false, "mRender": function (data, type, oObj) {
+                            var html = '<button id=' + oObj.accountref + ' class="btn btn-primary btn-sm" onclick="SuccessClicked(this.id)">S</button>';
+                            html = html + '&nbsp;<button id=' + oObj.accountref + ' class="btn btn-danger btn-sm" onclick="FailClicked(this.id)">F</button>'
+                            return html;
+                        }
+                    },
+                 ],
+                "columnDefs": [
+                   {
+                       "targets": [@(User.IsInRole("administrator") ? 7 : 0)],
+                       "visible": false
+                   },
+                   
+                ]
+            });
+        }
+
+        function SuccessClicked(rechargeid) {
+            $("#accountid").val(rechargeid);
+            $("#status").val(4);
+            $("#modal-label").text("Success Recharge");
+            $('#modalChange').modal('show');
+        }
+
+        function FailClicked(rechargeid) {
+            $("#accountid").val(rechargeid);
+            $("#status").val(3);
+            $("#modal-label").text("Fail Recharge");
+            $('#modalChange').modal('show');
+        }
+
+        function ChangeStatus() {
+
+            waitingDialog.show();
+
+            var frmModel = $("#frmStatus").serialize();
+
+            $.post("../Recharge/UpdateStatus", frmModel, function (resdata) {
+                waitingDialog.hide();
+                clearStatusData();
+                if (resdata.EntryStatus == true) {
+                    tablelist.draw();
+                    SuccessNotify(resdata.Messages);
+                    $('#modalChange').modal('hide');
+                } else {
+                    ErrorNotify(resdata.Messages);
+                    $('#modalChange').modal('hide');
+                    swal("Error", resdata.Message, "error");
+                }
+            });
+        }
+
+        function clearStatusData()
+        {
+            $("#accountid").val('');
+            $("#status").val('');
+            $("#modal-label").text('');
+            $("#transid").val('');
+        }
+    </script>
+}

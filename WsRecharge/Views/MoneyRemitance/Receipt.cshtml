@@ -1,0 +1,94 @@
+﻿@model Web.Framework.Entity.DMT_MoneyRemittance
+
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <div class="col-md-3">&nbsp;</div>
+    <div class="col-md-6">
+        <div class="panel panel-color panel-info">
+            <div id="DivToPrint">
+                <div class="panel-heading"><h3 class="panel-title" style="text-align:center;">INVOICE FOR MONEY TRANSFER</h3></div>
+                <div class="panel-body" id="DivToPrint">
+                    <div class="row">
+                        <table class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0">
+                            <tr>
+                                <td>
+                                    <label>Transfer Date:</label>
+                                    <br />
+                                    <span>@Model.CreatedDateTime.ToString("dd/MM/yyyy hh:mm tt")</span>
+                                </td>
+                                <td>
+                                    <label>Transfer Number:</label>
+                                    <br />
+                                    <span>@(Model.mt_RequestNo == string.Empty ? "NA" : Model.mt_RequestNo)</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label>Fund From :</label>
+                                    <br />
+                                    <span>@Model.mt_customermobile</span>
+                                    <span>(@Model.customername)</span>
+                                </td>
+                                <td>
+                                    <label>Fund To:</label>
+                                    <br />
+                                    <span>@Model.mt_BeneficiryMobile</span>
+                                    <span>(@Model.mt_BeneficiaryName)</span>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <table class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0">
+                            <tr>
+                                <th>Amount Transfered :</th>
+                                <td>@Model.mt_amount</td>
+                            </tr>
+                            <tr>
+                                <th>Charge :</th>
+                                <td>@Model.mt_charge</td>
+                            </tr>
+                            <tr>
+                                <th>Total :</th>
+                                <td>@(Model.mt_charge + Model.mt_amount)</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" onclick="PrintInvoice();" class="btn btn-primary"><i class="zmdi zmdi-print"></i>&nbsp;Print Invoice</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+
+    <script src="~/Scripts/printThis.js"></script>
+
+    <script type="text/javascript">
+        function PrintInvoice() {
+            $("#DivToPrint").printThis({
+                debug: false,               // show the iframe for debugging
+                importCSS: true,            // import page CSS
+                importStyle: true,         // import style tags
+                printContainer: true,       // grab outer container as well as the contents of the selector
+                removeInline: false,        // remove all inline styles from print elements
+                printDelay: 333,            // variable print delay
+                header: null,               // prefix to html
+                footer: null,               // postfix to html
+                base: false,               // preserve the BASE tag, or accept a string for the URL
+                formValues: true,           // preserve input/form values
+                canvas: false,              // copy canvas elements (experimental)
+                removeScripts: false,       // remove script tags from print content
+                copyTagClasses: true       // copy classes from the html & body tag
+            });
+        }
+    </script>
+}

@@ -1,0 +1,218 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-md-12">
+        <span class="pull-right">
+            <button class="btn btn-inverse" onclick="AddService();"><i class="fa fa-plus-square-o"></i>&nbsp;Add Service</button>
+            <button class="btn btn-inverse" type="button" onclick="RefreshMaster();"><i class="fa fa-refresh"></i></button>
+        </span>
+    </div>
+    <div class="col-md-12">
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Service Master
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <table id="tblDisplay" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>ENTRY DATE</th>
+                                    <th>SERVICE NAME</th>
+                                    <th>SERVICE KEY</th>
+                                    <th>STATUS</th>
+                                    <th>EDIT</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="custom-width-modalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="frmService">
+                <input type="hidden" id="serviceid" name="serviceid" />
+                <input type="hidden" id="EntryMode" name="EntryMode" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="custom-width-modalLabel">Add New Service</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="dvmessage"></div>
+                    @*<div id="dvindexmessage"></div>*@
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Service Name :</label>
+                                <input type="text" class="form-control" id="servicename" maxlength="50" name="servicename" placeholder="service Name">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Service Key :</label>
+                                <input type="text" class="form-control" id="servicecode" maxlength="50" name="servicecode" placeholder="service Key">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" onclick="SaveEntry();" class="btn btn-primary">Save</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div>
+</div>
+
+@section scripts{
+    <script type="text/javascript">
+        var tablelist;
+        function formatDate(ms) {
+            var date = new Date(parseInt(ms));
+            var hour = date.getHours();
+            var mins = date.getMinutes() + '';
+            var time = "AM";
+            // find time
+            if (hour >= 12) {
+                time = "PM";
+            }
+            // fix hours format
+            if (hour > 12) {
+                hour -= 12;
+            }
+            else if (hour == 0) {
+                hour = 12;
+            }
+            // fix minutes format
+            if (mins.length == 1) {
+                mins = "0" + mins;
+            }
+            // return formatted date time string
+            return (date.getDate().toString().length == 1 ? "0" : "") + (date.getDate()) + "/" + (date.getMonth().toString().length == 1 ? "0" : "") + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + hour + ":" + mins + " " + time;
+        }
+        $(document).ready(function () {
+            waitingDialog.show('Please Wait..');
+            tablelist = $('#tblDisplay').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "responsive": true,
+                "sPaginationType": "full_numbers",
+                "info": true,
+                "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))ServiceMaster/GetAll",
+                    "type": "POST", "datatype": "json"
+                },
+                "aoColumns": [
+                {
+                    data: "serviceid", "bSearchable": true, "bSortable": true, "mRender": function (data, type, oObj) {
+                        return '<label class="form-label">' + formatDate(oObj.CreatedDateTime.substring(6, oObj.CreatedDateTime.length - 2)) + '</label>';
+                    }
+                },
+                { data: "servicename", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "servicecode", "bSearchable": true, "orderable": true, "orderable": true },
+                {
+                    data: "Status", "bSearcable": true, "bSortable": true, "mRender": function (data, type, oObj) {
+                        if (oObj.Status == 1) {
+                            return "<button type='button' class='btn btn-primary btn-xs' onclick='StatusUpdate(&quot;" + oObj.serviceid + "&quot;)'>Active</button>"
+                        } else { return "<button type='button' class='btn btn-danger btn-xs' onclick='StatusUpdate(&quot;" + oObj.serviceid + "&quot;)'>De-Active</button>" }
+                    }
+                },
+                    {
+                        data: "serviceid", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return ' <button type="button" class="btn btn-info btn-xs" onclick="EditEntry(/' + oObj.serviceid + '/)">Edit</button>';
+                        },
+                    },
+                ],
+            });
+            waitingDialog.hide();
+            tablelist.init();
+        });
+
+        function AddService() {
+            $("#dvindexmessage").empty();
+            $("#dvmessage").empty();
+            $("#servicename").val("");
+            $("#servicecode").val("");
+            $('#myModal').modal('show');
+        }
+
+        function SaveEntry() {
+            if ($("#servicename").val() == "" || $("#servicename").val() == " " || $("#servicename").val() == null) {
+                ErrorNotify("Service Name Required !");
+                return false; 
+            }
+            if ($("#servicecode").val() == "" || $("#servicecode").val() == " " || $("#servicecode").val() == null) {
+                ErrorNotify("Service Code Required !");
+                return false; 
+            }
+            waitingDialog.show();
+            var frmModel = $("#frmService").serialize();
+            $.post("../ServiceMaster/SaveEntry", frmModel, function (resdata) {
+                waitingDialog.hide();
+                if (resdata.EntryStatus == true) {
+                    $("#dvmessage").empty();
+                    tablelist.draw();
+                    $("#servicename").val("");
+                    $("#servicecode").val("");
+                    $('#myModal').modal('hide');
+                    swal("Record Saved Successfully", "", "success");
+                    tablelist.fnDraw();
+                } else {
+                    $("#dvindexmessage").empty();
+                    $("#dvmessage").empty().append(resdata.MessageHtml);
+                }
+            });
+        }
+
+        function StatusUpdate(updateid) {
+            swal({
+                title: "Status",
+                text: "Are you sure to change Status...?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Change Status",
+                closeOnConfirm: true
+            },
+                function () {
+                    waitingDialog.show();
+                    $.getJSON("../ServiceMaster/UpdateStatus/" + updateid, function (json) {
+                        waitingDialog.hide();
+                    if (json.EntryStatus == true) {
+                        tablelist.draw();
+                    } else {
+                        swal("Error", json.MessageHtml, "error")
+                    }
+                });
+            });
+        }
+
+        function EditEntry(editid) {
+            $("#serviceid").val(editid);
+            $("#EntryMode").val('Edit');
+            $("#dvmessage").empty();
+            waitingDialog.show();
+            $.getJSON("../ServiceMaster/EditRecord/" + editid, function (json) {
+                waitingDialog.hide();
+                $("#tblUserList").dataTable().fnDraw();
+                $("#servicename").val(json.Model.servicename);
+                $("#servicecode").val(json.Model.servicecode);
+            });
+            $('#myModal').modal('show');
+        }
+
+        function RefreshMaster() { tablelist.draw(); }
+
+    </script>
+}

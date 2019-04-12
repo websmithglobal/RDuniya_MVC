@@ -1,0 +1,169 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <link rel="stylesheet" type="text/css" href="~/Content/select2/select2.css" />
+}
+
+<div class="row">
+    <div class="col-lg-12 col-md-12 form-group">
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Ledger Report</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-2 col-md-2 form-group">
+                        <select id="ddrange" onchange="OnDateChange()" class="select2" name="ddrange">
+                            <option value="0" selected>Today</option>
+                            <option value="1">Custom Date</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-2 form-group" id="divfromdate">
+                        <input type="text" class="form-control" id="fromdate" name="fromdate" placeholder="From Date">
+                    </div>
+                    <div class="col-lg-2 col-md-2 form-group" id="divtodate">
+                        <input type="text" class="form-control" id="todate" name="todate" placeholder="To Date">
+                    </div>
+                    <div class="col-lg-2 col-md-2 form-group">
+                        <select id="ddData" class="select2" name="ddData">
+                            <option value="0" selected>Live</option>
+                            <option value="1">Archive</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-2 form-group">
+                        <input type="text" class="form-control" name="search" id="search" placeholder="Search">
+                    </div>
+                    <div class="col-lg-2 col-md-2 form-group">
+                        <button type="button" onclick="SearchData();" class="btn btn-primary  btn m-b-5">Search</button>
+                        <button type="button" onclick="ClearText();" class="btn btn-danger btn m-b-5">Clear</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <table id="tblDisplay" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>ENTRY DATE</th>
+                                    <th>USER NAME</th>
+                                    <th>BEFORE BALANCE</th>
+                                    <th>CREDIT</th>
+                                    <th>DEBIT</th>
+                                    <th>AFTER BALANCE</th>
+                                    <th style="width:250px;">REMAKRS</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+@section scripts{
+    <script src="~/Content/select2/select2.min.js"></script>
+    <script type="text/javascript">
+        var tablelist;
+        $(document).ready(function () {
+            $('#tblDisplay').DataTable();
+            $("#divfromdate").css('display', 'none');
+            $("#divtodate").css('display', 'none');
+            $('.select2').select2({
+                width: '100%'
+            });
+            $('.input-daterange input').each(function () {
+                $(this).datepicker({
+                    format: 'dd/mm/yyyy',
+                   todayHighlight: 'TRUE',
+                    autoclose: true
+                });
+            });
+            $("#fromdate").datepicker({
+                format: 'dd/mm/yyyy',
+        todayHighlight: 'TRUE',
+                autoclose: true
+            });
+            $("#todate").datepicker({
+                format: 'dd/mm/yyyy',
+                todayHighlight: 'TRUE',
+                autoclose: true
+            });
+
+        });
+        function ClearText() {
+            $("#divfromdate").css('display', 'none');
+            $("#divtodate").css('display', 'none');
+            $("#fromdate").val('');
+            $("#todate").val('');
+            $("#search").val('');
+            $("#ddrange").val('0');
+            $('#ddrange').trigger('change');
+
+        }
+        function OnDateChange() {
+            if ($("#ddrange").val() == "0") {
+                $("#divfromdate").css('display', 'none');
+                $("#divtodate").css('display', 'none');
+            }
+            else if ($("#ddrange").val() == "1") {
+                $("#divfromdate").css('display', 'block');
+                $("#divtodate").css('display', 'block');
+            }
+        }
+        function SearchData() {
+            tablelist = $('#tblDisplay').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "destroy": true,
+                "responsive": true,
+                "searching": true,
+                "sPaginationType": "full_numbers",
+                "info": true,
+                "lengthMenu": [[20, 50, 100, 200], [20, 50, 100, 200]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))LedgerReport/GetAll",
+                    "type": "POST", "datatype": "json",
+                    "data": function (d) {
+                        d.ddrange = $("#ddrange").val(),
+                        d.fromdate = $("#fromdate").val(),
+                        d.todate = $("#todate").val(),
+                        d.ddData = $("#ddData").val();
+                        d.search = $("#search").val();
+                    }
+                },
+                "aoColumns": [
+                    {
+                        data: "ledgerid", "bSearcable": false, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return '<label class="form-label">' + formatDate(oObj.SystemDateTime.substring(6, oObj.SystemDateTime.length - 2)) + '</label>';
+                        }
+                    },
+                    { data: "username", "bSearchable": true, "orderable": true, "orderable": true },
+                    { data: "beforebal", "bSearchable": false, "orderable": false, "orderable": false },
+                    { data: "credit", "bSearchable": false, "orderable": false, "orderable": false },
+                    { data: "debit", "bSearchable": false, "orderable": false, "orderable": false },
+                    { data: "afterbal", "bSearchable": false, "orderable": false, "orderable": false },
+                    { data: "remakrs", "bSearchable": true, "orderable": true, "orderable": true },
+                ],
+                "createdRow": function (row, data, dataIndex) {
+                    if (data.credit != 0) {
+                        $(row).addClass('success');
+                    } else if (data.debit != 0) {
+                        $(row).addClass('danger');
+                    }
+                }
+            });
+
+        }
+        function formatDateOnly(ms) {
+            var date = new Date(parseInt(ms));
+            return (date.getDate().toString().length == 1 ? "0" : "") + (date.getDate()) + "/" + (date.getMonth().toString().length == 1 ? "0" : "") + (date.getMonth() + 1) + "/" + date.getFullYear();
+        }
+    </script>
+}
+

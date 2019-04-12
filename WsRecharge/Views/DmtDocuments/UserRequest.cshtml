@@ -1,0 +1,158 @@
+﻿@{
+    ViewBag.Title = "UserRequest";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <link rel="stylesheet" type="text/css" href="~/Content/select2/select2.css" />
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Dmt User Request
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <table id="tblDisplay" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>USER NAME</th>
+                                    <th>MOBILE</th>
+                                    <th>TYPE</th>
+                                    <th>PROOF 1</th>
+                                    <th>PROOF 2</th>
+                                    <th>ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalReject" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="custom-width-modalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="frmApiUser">
+                <input type="hidden" name="dd_id" id="dd_id" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="custom-width-modalLabel">Reject Request</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="dvmessage"></div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Remark :</label>
+                                <textarea type="text" class="form-control" id="Remark" maxlength="255" name="dd_remarks" placeholder="Remarks for Rejection"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" onclick="SaveRejection();" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Content/select2/select2.min.js"></script>
+    <script type="text/javascript">
+        var tablelist;
+
+        $(document).ready(function () {
+
+            tablelist = $('#tblDisplay').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "responsive": true,
+                "sPaginationType": "full_numbers",
+                "info": true,
+                "lengthMenu": [[10, 50, 100], [10, 50, 100]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))DmtDocuments/GetAll",
+                    "type": "POST", "datatype": "json"
+                },
+                "aoColumns": [
+                    { data: "up_username", "bSearchable": true, "orderable": true },
+                    { data: "up_mobile", "bSearchable": true, "orderable": true },
+                    //{ data: "dd_type", "bSearchable": true, "orderable": true },
+                    {
+                        data: "dd_type", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+
+                            if (oObj.dd_type == 1) {
+                                return '<span class="label label-purple">VOTTER ID</span>';
+                            }
+
+                            else if (oObj.dd_type == 2) {
+                                return '<span class="label label-purple">PAN CARD</span>';
+                            }
+                            else if (oObj.dd_type == 3) {
+                                return '<span class="label label-purple">ADHAR CARD</span>';
+                            } else {
+                                return '<span class="label label-danger">NA</span>';
+                            }
+                        },
+                    },
+                    {
+                        data: "dd_page1", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                            var html = '<img src="' + oObj.dd_page1+'" width="100px;" height="50px;" />';
+                            return html;
+                        },
+                    },
+                    {
+                        data: "dd_page2", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                            var html = '<img src="' + oObj.dd_page2 + '" width="100px;" height="50px;" />';
+                            return html;
+                        },
+                    },
+                    {
+                        data: "up_id", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj)
+                        {
+                            var html = '<button type="button" class="btn btn-info" onclick="Approve(this.id)">Approve</button>';
+                            html = html + '&nbsp;<button type="button" class="btn btn-danger" onclick="Reject(this.id)">Reject</button>';
+                            return html;
+                        },
+                    },
+                ],
+            });
+            $('.select2').select2({
+                width: '100%'
+            });
+        });
+
+        function RefreshMaster() { tablelist.draw(); }
+
+        function Approve(updateid) {
+            swal({
+                title: "Status",
+                text: "Are you sure to approve this customer...?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Change Status",
+                closeOnConfirm: true
+            },
+                function ()
+                {
+                });
+            });
+        }
+
+        function Reject(updateid) {
+            $("#dd_id").val(updateid);
+            $("#modalReject").modal('show');
+        }
+
+    </script>
+}

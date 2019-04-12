@@ -1,0 +1,169 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <link href="~/Content/cropper/cropper.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="~/Content/select2/select2.css" />
+}
+<div class="row">
+    <div class="col-md-3">&nbsp;</div>
+    <div class="col-md-6">
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading"><h3 class="panel-title">Add Fund To Customer</h3></div>
+            <form id="frmFundTransfer">
+                <input type="hidden" id="up_userid" name="up_userid" />
+                <input type="hidden" id="up_mode" name="up_mode" />
+                <input type="hidden" id="EntryMode" name="EntryMode" />
+                <div class="panel-body">
+                    <div id="dvmessage"></div>
+                    <div id="dvindexmessage"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="userid">Search:</label>
+                                <select class="select2" name="userid" id="userid">
+                                    <option value="00000000-0000-0000-0000-000000000000" selected> SELECT USER TO TRANSFER FUND </option>
+                                    @foreach (Web.Framework.Entity.UserProfile el in ViewBag.Users)
+                                    {
+                                        <option value="@el.up_userid">@el.up_username >> @el.up_mobile</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>&nbsp;</label><br />
+                                <button type="button" onclick="SearchDetail();" class="btn btn-success">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="AccountTo">Account To :</label>
+                                <input class="form-control" id="AccountTo" name="AccountTo" disabled="disabled" placeholder="Account To" readonly type="text">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="UserLevel">UserLevel :</label>
+                                <input class="form-control" id="UserLevel" name="UserLevel" disabled="disabled" placeholder="Mobile" readonly type="text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="Mobile">Mobile:</label>
+                                <input class="form-control" id="Mobile" name="Mobile" disabled="disabled" placeholder="Mobile" readonly type="text">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="availbalance">Available Balance:</label>
+                                <input class="form-control" id="availbalance" name="availbalance" disabled="disabled" placeholder="Available Balance" readonly type="text">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="up_fundbalance">Fund Amont:</label>
+                                <input class="form-control numberonly" id="up_fundbalance" name="up_fundbalance" maxlength="5" placeholder="Enter Amont" type="text">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="up_password">Login Password:</label>
+                                <input class="form-control" id="up_password" name="up_password" placeholder="Login Password" type="password">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="up_remakrs">Remarks(optional):</label>
+                                <textarea id="up_remakrs" name="up_remakrs" class="form-control"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" onclick="SaveEntry();" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script src="~/Content/select2/select2.min.js"></script>
+    <script type="text/javascript" src="~/Content/jquery.validate/jquery.validate.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.select2').select2({
+                width: '100%'
+            });
+        });
+        function SearchDetail() {
+            if ($("#frmFundTransfer").valid()) {
+                waitingDialog.show('Please Wait...', { dialogSize: 'sm', progressType: 'info' });
+                $.getJSON("../FundTransfer/SearchCustomer/" + $("#userid").val(), function (json) {
+                    if (json.EntryStatus == true) {
+                        $("#dvindexmessage").empty();
+                        $("#dvmessage").empty();
+                        $("#availbalance").val(json.Model.up_balance);
+                        $("#UserLevel").val(json.Model.UserLevelName);
+                        $("#AccountTo").val(json.Model.up_username);
+                        $("#Mobile").val(json.Model.up_mobile);
+                        $("#up_userid").val(json.Model.up_userid);
+                        $("#up_mode").val('WEB');
+                        waitingDialog.hide();
+                    }
+                    else {
+                        $("#dvindexmessage").empty();
+                        $("#dvmessage").empty().append("<div class='alert alert-danger'><span>Please select User !</span></div>");
+                        waitingDialog.hide();
+                    }
+                });
+            } else {
+                return false;
+            }
+        }
+        $("#frmFundTransfer").validate({
+            rules: {
+                txtsearch: "required"
+            },
+            messages: {
+                txtsearch: "Search is required",
+            }
+        });
+        function SaveEntry() {
+            waitingDialog.show('Please Wait...', { dialogSize: 'sm', progressType: 'info' });
+            var frmModel = $("#frmFundTransfer").serialize();
+            $.post("../FundTransfer/SaveEntry", frmModel, function (resdata) {
+                if (resdata.EntryStatus == true) {
+                    $("#dvmessage").empty();
+                    $("#dvindexmessage").empty().append(resdata.MessageHtml);
+                    $("#AccountTo").val('');
+                    $("#Mobile").val('');
+                    $("#availbalance").val('');
+                    $("#UserLevel").val('');
+                    $("#up_fundbalance").val('');
+                    $("#up_password").val('');
+                    $("#up_userid").val('');
+                    $("#up_remakrs").val('');
+                    $("#userid").val('00000000-0000-0000-0000-000000000000');
+                    $('#userid').trigger('change');
+                    waitingDialog.hide();
+                } else {
+                    $("#dvindexmessage").empty();
+                    $("#dvmessage").empty().append(resdata.MessageHtml);
+                    waitingDialog.hide();
+                }
+            });
+        }
+    </script>
+}
+
+

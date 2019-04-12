@@ -1,0 +1,183 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <link rel="stylesheet" type="text/css" href="~/Content/select2/select2.css" />
+}
+    <div class="row">
+        <div class="col-lg-12 col-md-12 form-group">
+            <div class="panel panel-color panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Remitance Report</h3>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-lg-2 col-md-2 form-group">
+                            <select id="ddrange" onchange="OnDateChange()" class="select2" name="ddrange">
+                                <option value="0" selected>Today</option>
+                                <option value="1">Custom Date</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-2 form-group" id="divfromdate">
+                            <input type="text" class="form-control" id="fromdate" name="fromdate" placeholder="From Date">
+                        </div>
+                        <div class="col-lg-2 col-md-2 form-group" id="divtodate">
+                            <input type="text" class="form-control" id="todate" name="todate" placeholder="To Date">
+                        </div>
+                        <div class="col-lg-2 col-md-2 form-group">
+                            <select id="ddData" class="select2" name="ddData">
+                                <option value="0" selected>Live</option>
+                                <option value="1">Archive</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2 col-md-2 form-group">
+                            <input type="text" class="form-control" name="search" id="search" placeholder="Search any text">
+                        </div>
+                        <div class="col-lg-2 col-md-2 form-group">
+                            <button type="button" onclick="SearchData();" class="btn btn-primary  btn m-b-5">Search</button>
+                            <button type="button" onclick="ClearText();" class="btn btn-danger btn m-b-5">Clear</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <table id="tblDisplay" class="table table-striped table-bordered" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>REQ.DATE</th>
+                                        <th>CUSTOMER NUMBER</th>
+                                        <th>BENIFICARY NUMBER</th>
+                                        <th>ACCOUNT NUMBER</th>
+                                        <th>AMOUNT</th>
+                                        <th>TRANSID</th>
+                                        <th>IP ADDRESS</th>
+                                        <th>ACTION</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+@section scripts{
+    <script src="~/Content/select2/select2.min.js"></script>
+
+    <script type="text/javascript">
+        var tablelist;
+        $(document).ready(function () {
+
+            $('#tblDisplay').DataTable();
+            $("#divfromdate").css('display', 'none');
+            $("#divtodate").css('display', 'none');
+
+
+            $('.input-daterange input').each(function () {
+                $(this).datepicker({
+                    format: 'dd/mm/yyyy',
+                    todayHighlight: 'TRUE',
+                });
+            });
+
+            $("#fromdate").datepicker({
+                format: 'dd/mm/yyyy',
+                todayHighlight: 'TRUE',
+            });
+            $("#todate").datepicker({
+                format: 'dd/mm/yyyy',
+                todayHighlight: 'TRUE',
+            });
+
+            $('.select2').select2({
+                width: '100%'
+            });
+
+        });
+
+        function ClearText() {
+            $("#divfromdate").css('display', 'none');
+            $("#divtodate").css('display', 'none');
+            $("#fromdate").val('');
+            $("#todate").val('');
+            $("#search").val('');
+            $("#ddrange").val('0');
+            $('#ddrange').trigger('change');
+
+        }
+        function OnDateChange() {
+            if ($("#ddrange").val() == "0") {
+                $("#divfromdate").css('display', 'none');
+                $("#divtodate").css('display', 'none');
+            }
+            else if ($("#ddrange").val() == "1") {
+                $("#divfromdate").css('display', 'block');
+                $("#divtodate").css('display', 'block');
+            }
+        }
+
+        function CreateTicket(rechargeid) {
+
+            $("#rechargeid").val(rechargeid);
+            $('#modalComplain').modal('show');
+        }
+
+        function PrintRecipt(id) {
+            window.location = '@Url.Action("")';
+        }
+
+        function clearComplainData() {
+            $("#complaintype").val(0);
+            $("#complaintype").trigger('change');
+            $("#detail").val('');
+        }
+
+         function SearchData() {
+            tablelist = $('#tblDisplay').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "destroy": true,
+                "responsive": false,
+                "searching": true,
+                "sPaginationType": "full_numbers",
+                "info": true,
+                "lengthMenu": [[20, 50, 100, 200], [20, 50, 100, 200]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))MoneyRemitanceReport/GetAll",
+                    "type": "POST", "datatype": "json",
+                    "data": function (d) {
+                        d.ddrange = $("#ddrange").val(),
+                        d.fromdate = $("#fromdate").val(),
+                        d.todate = $("#todate").val(),
+                        d.ddData = $("#ddData").val();
+                        d.search = $("#search").val();
+                    }
+                },
+                "aoColumns": [
+                    {
+                        data: "rechargeid", "bSearcable": false, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return '<label class="form-label">' + formatDate(oObj.CreatedDateTime.substring(6, oObj.SystemDateTime.length - 2)) + '</label>';
+                        }
+                    },
+                    { data: "mt_customermobile", "bSearchable": false, "orderable": false},
+                    { data: "mt_BeneficiryMobile", "bSearchable": false, "orderable": false},
+                    { data: "mt_accountnumber", "bSearchable": false, "orderable": false},
+                    { data: "mt_amount", "bSearchable": false, "orderable": false },
+                    { data: "mt_amount", "bSearchable": false, "orderable": false},
+                    { data: "mt_Ipaddress", "bSearchable": false, "orderable": false},
+                    {
+                        data: "mt_id", "bSearchable": false, "bSortable": false, "mRender": function (data, type, oObj) {
+                            var html = '<button id=' + oObj.mt_id + ' class="btn btn-purple btn-sm" onclick="PrintInvoice(this.id)">PRINT INVOICE</button>';
+                            return html;
+                        }
+                    },
+                ]
+            });
+        }
+    </script>
+}

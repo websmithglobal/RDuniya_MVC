@@ -1,0 +1,254 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <link rel="stylesheet" type="text/css" href="~/Content/select2/select2.css" />
+}
+<div class="row">
+    <div class="col-md-12">
+        <span class="pull-right">
+            <button class="btn btn-inverse" onclick="OperatorMapping();"><i class="fa fa-plus-square-o"></i>&nbsp;Add Operator Code Mapping</button>
+            <button class="btn btn-inverse" type="button" onclick="RefreshMaster();"><i class="fa fa-refresh"></i></button>
+        </span>
+    </div>
+    <div class="col-md-12">
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Operator Code Mapping Master
+                    
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <table id="tblDisplay" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>ENTRY DATE</th>
+                                    <th>APIS NAME</th>
+                                    <th>OPERATOR NAME</th>
+                                    <th>NORMAL CODE</th>
+                                    <th>SPECIAL CODE</th>
+                                    <th>EDIT</th>
+                                    <th>DELETE</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="custom-width-modalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="frmOpMapping">
+                <input type="hidden" id="operatormapid" name="operatormapid" />
+                <input type="hidden" id="EntryMode" name="EntryMode" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="custom-width-modalLabel">Add New Operator Code Mapping</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="dvmessage"></div>
+                    @*<div id="dvindexmessage"></div>*@
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Select Apis :</label>
+                                <select id="apiid" class="select2" name="apiid">
+                                    <option value="00000000-0000-0000-0000-000000000000" selected>-Select Apis-</option>
+                                    @foreach (Web.Framework.Entity.Apis el in ViewBag.ApisMaster)
+                                    {
+                                    <option value="@el.apiid">@el.apititle</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Select Operator :</label>
+                                <select class="select2" name="operatorid" id="operatorid">
+                                    <option value="00000000-0000-0000-0000-000000000000" selected>-Select Operator-</option>
+                                    @foreach (Web.Framework.Entity.OperatorSetup el in ViewBag.OperatorMaster)
+                                    {
+                                    <option value="@el.operatorid">@el.operatorname</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Operator Code(Normal) :</label>
+                                <input type="text" class="form-control" id="operatornomal" maxlength="50" name="operatornomal" placeholder="Operator Code(Normal)">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Operator Code(Special) :</label>
+                                <input type="text" class="form-control" id="operatorspecial" maxlength="50" name="operatorspecial" placeholder="Operator Code(Special)">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" onclick="SaveEntry();" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script src="~/Content/select2/select2.min.js"></script>
+    <script type="text/javascript">
+        var tablelist;
+        function formatDate(ms) {
+            var date = new Date(parseInt(ms));
+            var hour = date.getHours();
+            var mins = date.getMinutes() + '';
+            var time = "AM";
+            // find time
+            if (hour >= 12) {
+                time = "PM";
+            }
+            // fix hours format
+            if (hour > 12) {
+                hour -= 12;
+            }
+            else if (hour == 0) {
+                hour = 12;
+            }
+            // fix minutes format
+            if (mins.length == 1) {
+                mins = "0" + mins;
+            }
+            // return formatted date time string
+            return (date.getDate().toString().length == 1 ? "0" : "") + (date.getDate()) + "/" + (date.getMonth().toString().length == 1 ? "0" : "") + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + hour + ":" + mins + " " + time;
+        }
+        $(document).ready(function () {
+            waitingDialog.show('Please Wait..');
+            tablelist = $('#tblDisplay').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "responsive": true,
+                "sPaginationType": "full_numbers",
+                "info": true,
+                "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))OperatorMapping/GetAll",
+                    "type": "POST", "datatype": "json"
+                },
+                "aoColumns": [
+                {
+                    data: "operatormapid", "bSearchable": true, "bSortable": true, "mRender": function (data, type, oObj) {
+                        return '<label class="form-label">' + formatDate(oObj.SystemDateTime.substring(6, oObj.SystemDateTime.length - 2)) + '</label>';
+                    }
+                },
+                { data: "apititle", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "operatorname", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "operatornomal", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "operatorspecial", "bSearchable": true, "orderable": true, "orderable": true },
+                    {
+                        data: "operatormapid", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return ' <button type="button" class="btn btn-info btn-xs" onclick="EditEntry(/' + oObj.operatormapid + '/)">Edit</button>';
+                        },
+                    },
+                    {
+                        data: "operatormapid", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return ' <button type="button" class="btn btn-danger btn-xs" onclick="DeleteEntry(/' + oObj.operatormapid + '/)">Delete</button>';
+                        },
+                    },
+                ],
+            });
+            waitingDialog.hide();
+            tablelist.init();
+            $('.select2').select2({
+                width: '100%'
+            });
+        });
+        function OperatorMapping() {
+            $("#dvindexmessage").empty();
+            $("#dvmessage").empty();
+            $('#myModal').modal('show');
+        }
+        function SaveEntry() {
+            if ($("#apiid").val() == "00000000-0000-0000-0000-000000000000" || $("#apiid").val() == " " || $("#apiid").val() == null) {
+                ErrorNotify("API Required !");
+                return false;
+            }
+            if ($("#operatorid").val() == "00000000-0000-0000-0000-000000000000" || $("#operatorid").val() == " " || $("#operatorid").val() == null) {
+                ErrorNotify("Operator Required !");
+                return false;
+            }
+            if ($("#operatornomal").val() == "" || $("#operatornomal").val() == " " || $("#operatornomal").val() == null) {
+                ErrorNotify("Operator Code Normal Required !");
+                return false;
+            }
+            if ($("#operatorspecial").val() == "" || $("#operatorspecial").val() == " " || $("#operatorspecial").val() == null) {
+                ErrorNotify("Operator Code special Required !");
+                return false;
+            }
+            waitingDialog.show();
+            var frmModel = $("#frmOpMapping").serialize();
+            $.post("../OperatorMapping/SaveEntry", frmModel, function (resdata) {
+                waitingDialog.hide();
+                if (resdata.EntryStatus == true) {
+                    $("#dvmessage").empty();
+                    tablelist.draw();
+                    $('#myModal').modal('hide');
+                    swal("Record Save Successfully", "", "success")
+                    tablelist.fnDraw();
+                } else {
+                    $("#dvindexmessage").empty();
+                    $("#dvmessage").empty().append(resdata.MessageHtml);
+                }
+            });
+        }
+        function EditEntry(editid) {
+            $("#operatormapid").val(editid);
+            $("#EntryMode").val('Edit');
+            $("#dvmessage").empty();
+            waitingDialog.show();
+            $.getJSON("../OperatorMapping/EditRecord/" + editid, function (json) {
+                waitingDialog.hide();
+                $("#tblUserList").dataTable().fnDraw();
+                $("#apiid").val(json.Model.apiid);
+                $('#apiid').trigger('change');
+                $("#operatorid").val(json.Model.operatorid);
+                $('#operatorid').trigger('change');
+                $("#operatornomal").val(json.Model.operatornomal);
+                $("#operatorspecial").val(json.Model.operatorspecial);
+            });
+            $('#myModal').modal('show');
+        }
+        function DeleteEntry(editid) {
+            swal({
+                title: "Are you sure?",
+                text: "Your will not be able to recover this record!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Yes, delete it!",
+                closeOnConfirm: true
+            },
+                function () {
+                    waitingDialog.show();
+                    $.getJSON("../OperatorMapping/DeleteEntry/" + editid, function (json) {
+                        waitingDialog.hide();
+                        if (json.EntryStatus == true) {
+                            tablelist.draw();
+                        } else {
+                            swal("Error", json.Messages, "error")
+                        }
+                    });
+
+                });
+        }
+    </script>
+}
+

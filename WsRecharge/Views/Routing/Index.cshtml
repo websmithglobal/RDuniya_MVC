@@ -1,0 +1,411 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <link rel="stylesheet" type="text/css" href="~/Content/select2/select2.css" />
+}
+<div class="row">
+    <div class="col-md-12">
+        <span class="pull-right">
+            <button class="btn btn-inverse" onclick="AddRouting();"><i class="fa fa-plus-square-o"></i>&nbsp;Add Operator Route</button>
+            <button class="btn btn-inverse" type="button" onclick="RefreshMaster();"><i class="fa fa-refresh"></i></button>
+        </span>
+    </div>
+    <div class="col-md-12">
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Operator Routing Master
+                    
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <table id="tblDisplay" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>OPERATOR NAME</th>
+                                    <th>TITLE</th>
+                                    <th>AMOUNT SPECIFIC</th>
+                                    <th>RANGE FROM</th>
+                                    <th>RANGE TO</th>
+                                    <th>API</th>
+                                    <th>SMART MOBILE</th>
+                                    <th>MACHINE NAME</th>
+                                    <th>SYSTEM DATE</th>
+                                    <th>STATUS</th>
+                                    <th>EDIT</th>
+                                    <th>DELETE</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="custom-width-modalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="frmRouteSetting">
+                <input type="hidden" id="routeid" name="routeid" />
+                <input type="hidden" id="EntryMode" name="EntryMode" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="custom-width-modalLabel">Add Operator Route</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="dvmessage"></div>
+                   @* <div id="dvindexmessage"></div>*@
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Title</label>
+                                <input type="text" id="routetitle" class="form-control" maxlength="100" name="routetitle" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Select Operator :</label>
+                                <select class="select2" name="operatorid" id="operatorid">
+                                    <option value="00000000-0000-0000-0000-000000000000" selected>-Select Operator-</option>
+                                    @foreach (Web.Framework.Entity.OperatorSetup el in ViewBag.OperatorMaster)
+                                    {
+                                    <option value="@el.operatorid">@el.operatorname</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Select Method:</label>
+                                <select class="select2" id="amountmethod" name="amountmethod" onchange="getamtchange(this.value)">
+                                    <option value="-1" selected>-Select Amount Method-</option>
+                                    <option value="0">Amount Specific</option>
+                                    <option value="1">Amount Range</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="amtspecificdiv" style="display:none;">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Amount Specific (comma separated  ex. ',')</label>
+                                <input type="text" class="form-control" id="amountSpecific" name="amountSpecific" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="amtrangediv" style="display:none;">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Amount Range From:</label>
+                                <input type="text" class="form-control numberonly" id="amountrangefrom" name="amountrangefrom" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Amount Range To:</label>
+                                <input type="text" class="form-control numberonly" id="amountrangeto" name="amountrangeto" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Select Recharge Method:</label>
+                                <select class="select2" id="rechargemethod" name="rechargemethod" onchange="getrechargemethod(this.value)">
+                                    <option value="-1" selected>-Select Recharge Method-</option>
+                                    <option value="0">Api</option>
+                                    <option value="1">Sim Tray</option>
+                                    <option value="2">Smart</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="apidiv" style="display:none;">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Select Recharge Method:</label>
+                                <select id="apiid" class="select2" name="apiid">
+                                    <option value="00000000-0000-0000-0000-000000000000" selected>-Select Apis-</option>
+                                    @foreach (Web.Framework.Entity.Apis el in ViewBag.ApisMaster)
+                                    {
+                                    <option value="@el.apiid">@el.apititle</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="simtraydiv" style="display:none;">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Select Sim Tray:</label>
+                                <select class="select2" id="machineid" name="machineid">
+                                    <option value="00000000-0000-0000-0000-000000000000" selected>-Select Sim Tray-</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="smartdiv" style="display:none;">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Select Smart:</label>
+                                <select class="select2" id="smartid" name="smartid">
+                                    <option value="00000000-0000-0000-0000-000000000000" selected>--Select Smart--</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" onclick="SaveEntry();" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Content/select2/select2.min.js"></script>
+    <script type="text/javascript">
+        var tablelist;
+        function formatDate(ms) {
+            var date = new Date(parseInt(ms));
+            var hour = date.getHours();
+            var mins = date.getMinutes() + '';
+            var time = "AM";
+            // find time
+            if (hour >= 12) {
+                time = "PM";
+            }
+            // fix hours format
+            if (hour > 12) {
+                hour -= 12;
+            }
+            else if (hour == 0) {
+                hour = 12;
+            }
+            // fix minutes format
+            if (mins.length == 1) {
+                mins = "0" + mins;
+            }
+            // return formatted date time string
+            return (date.getDate().toString().length == 1 ? "0" : "") + (date.getDate()) + "/" + (date.getMonth().toString().length == 1 ? "0" : "") + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + hour + ":" + mins + " " + time;
+        }
+        $(document).ready(function () {
+            waitingDialog.show('Please Wait..');
+            tablelist = $('#tblDisplay').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "responsive": true,
+                "sPaginationType": "full_numbers",
+                "info": true,
+                "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))Routing/GetAll",
+                    "type": "POST", "datatype": "json"
+                },
+                "aoColumns": [
+                { data: "operatorname", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "routetitle", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "amountSpecific", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "amountrangefrom", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "amountrangeto", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "apititle", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "smartmobile", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "machinename", "bSearchable": true, "orderable": true, "orderable": true },
+                {
+                    data: "routeid", "bSearchable": true, "bSortable": true, "mRender": function (data, type, oObj) {
+                        return '<label class="form-label">' + formatDate(oObj.CreatedDateTime.substring(6, oObj.CreatedDateTime.length - 2)) + '</label>';
+                    }
+                },
+                     {
+                         data: "Status", "bSearcable": true, "bSortable": true, "mRender": function (data, type, oObj) {
+                             if (oObj.Status == 1) {
+                                 return "<button type='button' class='btn btn-primary btn-xs' onclick='StatusUpdate(&quot;" + oObj.routeid + "&quot;)'>Active</button>"
+                             } else { return "<button type='button' class='btn btn-danger btn-xs' onclick='StatusUpdate(&quot;" + oObj.routeid + "&quot;)'>De-Active</button>" }
+                         }
+                     },
+                   {
+                       data: "routeid", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                           return ' <button type="button" class="btn btn-info btn-xs" onclick="EditEntry(/' + oObj.routeid + '/)">Edit</button>';
+                       },
+                   },
+                        {
+                            data: "routeid", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                                return ' <button type="button" class="btn btn-danger btn-xs" onclick="DeleteEntry(/' + oObj.routeid + '/)">Delete</button>';
+                            }
+                        },
+                ],
+            });
+            waitingDialog.hide();
+            tablelist.init();
+            $('.select2').select2({
+                width: '100%'
+            });
+        });
+        function getamtchange(id) {
+            if (id == '0') {
+                $("#amtspecificdiv").css('display', 'block');
+                $("#amtrangediv").css('display', 'none');
+
+            }
+            else if (id == '1') { $("#amtspecificdiv").css('display', 'none'); $("#amtrangediv").css('display', 'block'); }
+            else { $("#amtrangediv").css('display', 'none'); $("#amtspecificdiv").css('display', 'none'); }
+        }
+        function getrechargemethod(id) {
+            if (id == '0') {
+                $("#apidiv").css('display', 'block');
+                $("#simtraydiv").css('display', 'none');
+                $("#smartdiv").css('display', 'none');
+            }
+            else if (id == '1') { $("#simtraydiv").css('display', 'block'); $("#smartdiv").css('display', 'none'); $("#apidiv").css('display', 'none'); }
+            else if (id == '2') { $("#smartdiv").css('display', 'block'); $("#apidiv").css('display', 'none'); $("#simtraydiv").css('display', 'none'); }
+            else { $("#simtraydiv").css('display', 'none'); $("#smartdiv").css('display', 'none'); $("#apidiv").css('display', 'none'); }
+        }
+        function AddRouting() {
+            $("#dvindexmessage").empty();
+            $("#dvmessage").empty();
+            $('#myModal').modal('show');
+        }
+        function RefreshMaster() { tablelist.draw(); }
+        function SaveEntry() {
+            if ($("#routetitle").val() == "" || $("#routetitle").val() == " " || $("#routetitle").val() == null) {
+                ErrorNotify("Title Required");
+                return false;
+            }
+            if ($("#operatorid").val() == "00000000-0000-0000-0000-000000000000" || $("#operatorid").val() == " " || $("#operatorid").val() == null) {
+                ErrorNotify("Operator Required");
+                return false;
+            } if ($("#amountmethod").val() == "00000000-0000-0000-0000-000000000000" || $("#amountmethod").val() == " " || $("#amountmethod").val() == null) {
+                ErrorNotify("Operator Required");
+                return false;
+            }
+            waitingDialog.show();
+            var frmModel = $("#frmRouteSetting").serialize();
+            $.post("../Routing/SaveEntry", frmModel, function (resdata) {
+                waitingDialog.hide();
+                if (resdata.EntryStatus == true) {
+                    tablelist.draw();
+                    $("#routetitle").val('');
+                    $("#operatorid").val('00000000-0000-0000-0000-000000000000');
+                    $('#operatorid').trigger('change');
+                    $("#amountmethod").val('-1');
+                    $('#amountmethod').trigger('change');
+                    $("#rechargemethod").val('-1');
+                    $('#rechargemethod').trigger('change');
+                    $("#amountSpecific").val('');
+                    $("#amountrangefrom").val('');
+                    $("#amountrangeto").val('');
+                    $("#apiid").val('00000000-0000-0000-0000-000000000000');
+                    $('#apiid').trigger('change');
+                    $("#machineid").val('00000000-0000-0000-0000-000000000000');
+                    $('#machineid').trigger('change');
+                    $("#smartid").val('00000000-0000-0000-0000-000000000000');
+                    $('#smartid').trigger('change');
+                    $("#amtrangediv").css('display', 'none');
+                    $("#amtspecificdiv").css('display', 'none');
+                    $('#myModal').modal('hide');
+                    swal("Record Save Successfully", "", "success")
+                    tablelist.fnDraw();
+                }
+                else { $("#dvmessage").empty().append(resdata.MessageHtml); }
+            });
+        }
+        function StatusUpdate(updateid) {
+            swal({
+                title: "Status",
+                text: "Are you sure to change Status...?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Change Status",
+                closeOnConfirm: true
+            },
+                function () {
+                    waitingDialog.show();
+                    $.getJSON("../Routing/UpdateStatus/" + updateid, function (json) {
+                        waitingDialog.hide();
+                    if (json.EntryStatus == true) {
+                        tablelist.draw();
+                    } else {
+                        swal("Error", json.MessageHtml, "error")
+                    }
+                });
+            });
+        }
+        function DeleteEntry(editid) {
+            swal({
+                title: "Are you sure?",
+                text: "Your will not be able to recover this record!",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Yes, delete it!",
+                closeOnConfirm: true
+            },
+                function () {
+                    waitingDialog.show();
+                    $.getJSON("../Routing/DeleteEntry/" + editid, function (json) {
+                        waitingDialog.hide();
+                        if (json.EntryStatus == true) {
+                            tablelist.draw();
+                        } else {
+                            swal("Error", json.Messages, "error")
+                        }
+                    });
+
+                });
+        }
+        function EditEntry(editid) {
+            $("#routeid").val(editid);
+            $("#EntryMode").val('Edit');
+            $("#dvmessage").empty();
+            waitingDialog.show();
+            $.getJSON("../Routing/EditRecord/" + editid, function (json) {
+                waitingDialog.hide();
+                $("#tblUserList").dataTable().fnDraw();
+                $("#routetitle").val(json.Model.routetitle);
+                $("#operatorid").val(json.Model.operatorid);
+                $('#operatorid').trigger('change');
+                $("#amountmethod").val(json.Model.amountmethod);
+                $('#amountmethod').trigger('change');
+                $("#rechargemethod").val(json.Model.rechargemethod);
+                $('#rechargemethod').trigger('change');
+                if (json.Model.amountmethod == '0') {
+                    $("#amountSpecific").val(json.Model.amountSpecific);
+                    $("#amtspecificdiv").css('display', 'block');
+                    $("#amtrangefromdiv").css('display', 'none');
+                    $("#amtrangetodiv").css('display', 'none');
+                }
+                else if (json.Model.amountmethod == '1') {
+                    $("#amountrangeto").val(json.Model.amountrangeto);
+                    $("#amountrangefrom").val(json.Model.amountrangefrom);
+                    $("#amtspecificdiv").css('display', 'none');
+                    $("#amtrangefromdiv").css('display', 'block');
+                    $("#amtrangetodiv").css('display', 'block');
+                }
+                if (json.Model.rechargemethod == '0') {
+                    $("#apiid").val(json.Model.apiid); $("#apidiv").css('display', 'block'); $("#simtraydiv").css('display', 'none'); $("#smartdiv").css('display', 'none');
+                    $('#apiid').trigger('change');
+                }
+                else if (json.Model.rechargemethod == '1') {
+                    $("#machineid").val(json.Model.machineid); $("#simtraydiv").css('display', 'block'); $("#smartdiv").css('display', 'none'); $("#apidiv").css('display', 'none');
+                    $('#machineid').trigger('change');
+                }
+                else if (json.Model.rechargemethod == '2') {
+                    $("#smartid").val(json.Model.smartid); $("#smartdiv").css('display', 'block'); $("#apidiv").css('display', 'none'); $("#simtraydiv").css('display', 'none');
+                    $('#smartid').trigger('change');
+                }
+            });
+            $('#myModal').modal('show');
+        }
+    </script>
+}

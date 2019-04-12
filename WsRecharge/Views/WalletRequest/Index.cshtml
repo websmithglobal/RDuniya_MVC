@@ -1,0 +1,110 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-md-3">&nbsp;</div>
+    <div class="col-md-6">
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading"><h3 class="panel-title">Add Wallet Request</h3></div>
+            <form id="FrmWalletRequest">
+                <div class="panel-body">
+                    <div id="dvmessage"></div>
+                    <div id="dvindexmessage"></div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Transaction Mode</label>
+                                <div class="radio-inline">
+                                    <label class="cr-styled" for="example-radio4">
+                                        <input type="radio" id="example-radio4" checked name="wr_mode" value="1">
+                                        <i class="fa"></i>
+                                        NEFT
+                                    </label>
+                                </div>
+                                <div class="radio-inline">
+                                    <label class="cr-styled" for="example-radio5">
+                                        <input type="radio" id="example-radio5" name="wr_mode" value="2">
+                                        <i class="fa"></i>
+                                        IMPS
+                                    </label>
+                                </div>
+                                <div class="radio-inline">
+                                    <label class="cr-styled" for="example-radio6">
+                                        <input type="radio" id="example-radio6" name="wr_mode" value="3">
+                                        <i class="fa"></i>
+                                        CASH
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Bank Name</label>
+                                <input type="text" class="form-control" id="wr_bankname" maxlength="200" name="wr_bankname" placeholder="Bank Name">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Account Number</label>
+                                <input type="text" class="form-control numberonly" id="wr_accountno" maxlength="50" name="wr_accountno" placeholder="Account Number">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Amount</label>
+                                <input type="text" class="form-control numberonly" maxlength="6" id="wr_amount" name="wr_amount" placeholder="Amount">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Bank Reference ID</label>
+                                <input type="text" class="form-control" id="wr_refrenceid" maxlength="100" name="wr_refrenceid" placeholder="Reference ID">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="exampleInputEmail1">Remarks(optional)</label>
+                                <textarea type="text" class="form-control" id="wr_remakrs" name="wr_remakrs" placeholder="Remarks"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                @*<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>*@
+                <button type="button" onclick="SaveEntry();" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        function SaveEntry() {
+            waitingDialog.show('Please Wait...', { dialogSize: 'sm', progressType: 'info' });
+            var frmModel = $("#FrmWalletRequest").serialize();
+            $.post("../WalletRequest/SaveEntry", frmModel, function (resdata) {
+                waitingDialog.hide();
+                if (resdata.EntryStatus == true) {
+                    $("#wr_bankname").val("");
+                    $("#wr_accountno").val("");
+                    $("#wr_amount").val("");
+                    $("#wr_refrenceid").val("");
+                    $("#wr_remakrs").val("");
+                    $("#dvmessage").empty();
+                    $("#example-radio4").prop("checked", true);
+                    $("#dvindexmessage").empty().append(resdata.MessageHtml);
+                } else {
+                    $("#dvindexmessage").empty();
+                    $("#dvmessage").empty().append(resdata.MessageHtml);
+                }
+            });
+        }
+    </script>
+}

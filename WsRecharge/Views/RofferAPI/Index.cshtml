@@ -1,0 +1,242 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    ADD R-OFFER API
+                    <span class="pull-right">
+                        <button class="btn btn-inverse" onclick="AddRofferAPI();"><i class="fa fa-plus-square-o"></i>&nbsp;Add Api</button>
+                        <button class="btn btn-inverse" type="button" onclick="RefreshMaster();"><i class="fa fa-refresh"></i></button>
+                    </span>
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <table id="tblDisplay" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>ENTRY DATE</th>
+                                    <th>TITLE</th>
+                                    <th>R-OFFER URL</th>
+                                    <th>SIMPLE URL</th>
+                                    <th>DTH PLAN URL</th>
+                                    <th>DTH INFO URL</th>
+                                    <th>P(DAY) MAX(L)</th>
+                                    <th>STATUS</th>
+                                    <th>EDIT</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="custom-width-modalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="frmOFFER">
+                <input type="hidden" id="rofferid" name="rofferid" />
+                <input type="hidden" id="EntryMode" name="EntryMode" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="custom-width-modalLabel">Add New API</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="dvmessage"></div>
+                    <div id="dvindexmessage"></div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Api Title :</label>
+                                <input type="text" class="form-control" id="title" maxlength="50" name="title" placeholder="title Name">
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">R-offer URL :</label>
+                                <textarea type="text" class="form-control" id="rofferurl" name="rofferurl" placeholder="R Offer URL"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Simple URL :</label>
+                                <textarea type="text" class="form-control" id="simpleurl" name="simpleurl" placeholder="Simple URL"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Dth Plan URL :</label>
+                                <textarea type="text" class="form-control" id="dthplanurl" name="dthplanurl" placeholder="Dth Plan URL"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Dth Info URL :</label>
+                                <textarea type="text" class="form-control" id="dthinfourl" name="dthinfourl" placeholder="Dth Info URL"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">PerDay Max Limit :</label>
+                                <input type="text" class="form-control" id="perdaylimit" maxlength="7" name="perdaylimit" placeholder="PerDay Max Limit">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" onclick="SaveEntry();" class="btn btn-primary">Save</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        var tablelist;
+        function formatDate(ms) {
+            var date = new Date(parseInt(ms));
+            var hour = date.getHours();
+            var mins = date.getMinutes() + '';
+            var time = "AM";
+            // find time
+            if (hour >= 12) {
+                time = "PM";
+            }
+            // fix hours format
+            if (hour > 12) {
+                hour -= 12;
+            }
+            else if (hour == 0) {
+                hour = 12;
+            }
+            // fix minutes format
+            if (mins.length == 1) {
+                mins = "0" + mins;
+            }
+            // return formatted date time string
+            return (date.getDate().toString().length == 1 ? "0" : "") + (date.getDate()) + "/" + (date.getMonth().toString().length == 1 ? "0" : "") + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + hour + ":" + mins + " " + time;
+        }
+        $(document).ready(function () {
+            waitingDialog.show('Please Wait..');
+            tablelist = $('#tblDisplay').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "responsive": true,
+                "sPaginationType": "full_numbers",
+                "info": true,
+                "lengthMenu": [[10, 20, 50, -1], [10, 20, 50, "All"]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))RofferAPI/GetAll",
+                    "type": "POST", "datatype": "json"
+                },
+                "aoColumns": [
+                {
+                        data: "rofferid", "bSearchable": true, "bSortable": true, "mRender": function (data, type, oObj) {
+                        return '<label class="form-label">' + formatDate(oObj.CreatedDateTime.substring(6, oObj.CreatedDateTime.length - 2)) + '</label>';
+                    }
+                },
+                { data: "title", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "rofferurl", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "simpleurl", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "dthplanurl", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "dthinfourl", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "perdaylimit", "bSearchable": true, "orderable": true, "orderable": true },
+                {
+                    data: "Status", "bSearcable": true, "bSortable": true, "mRender": function (data, type, oObj) {
+                        if (oObj.Status == 1) {
+                            return "<button type='button' class='btn btn-primary btn-xs' onclick='StatusUpdate(&quot;" + oObj.rofferid + "&quot;)'>Active</button>"
+                        } else { return "<button type='button' class='btn btn-danger btn-xs' onclick='StatusUpdate(&quot;" + oObj.rofferid + "&quot;)'>De-Active</button>" }
+                    }
+                },
+                {
+                        data: "rofferid", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return ' <button type="button" class="btn btn-info btn-xs" onclick="EditEntry(/' + oObj.rofferid + '/)">Edit</button>';
+                        },
+                },
+                ],
+            });
+            waitingDialog.hide();
+            tablelist.init();
+            $('.select2').select2({
+                width: '100%'
+            });
+        });
+        function AddRofferAPI() {
+            $("#dvindexmessage").empty();
+            $("#dvmessage").empty();
+            $("#title").val("");
+            $("#rofferurl").val("");
+            $("#simpleurl").val("");
+            $("#dthplanurl").val("");
+            $("#dthinfourl").val("");
+            $("#perdaylimit").val("");
+            $('#myModal').modal('show');
+        }
+        function SaveEntry() {
+            var frmModel = $("#frmOFFER").serialize();
+            $.post("../RofferAPI/SaveEntry", frmModel, function (resdata) {
+                if (resdata.EntryStatus == true) {
+                    $("#dvmessage").empty();
+                    tablelist.draw();
+                    $("#title").val("");
+                    $("#rofferurl").val("");
+                    $("#simpleurl").val("");
+                    $("#dthplanurl").val("");
+                    $("#dthinfourl").val("");
+                    $("#perdaylimit").val("");
+                    $("#dvindexmessage").empty().append(resdata.MessageHtml);
+                    tablelist.fnDraw();
+                } else {
+                    $("#dvindexmessage").empty();
+                    $("#dvmessage").empty().append(resdata.MessageHtml);
+                }
+            });
+        }
+        function StatusUpdate(updateid) {
+            swal({
+                title: "Status",
+                text: "Are you sure to change Status...?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Change Status",
+                closeOnConfirm: true
+            },
+                function () {
+                    $.getJSON("../RofferAPI/UpdateStatus/" + updateid, function (json) {
+                        if (json.EntryStatus == true) {
+                            tablelist.draw();
+                        } else {
+                            swal("Error", json.MessageHtml, "error")
+                        }
+                    });
+                });
+        }
+        function EditEntry(editid) {
+            $("#rofferid").val(editid);
+            $("#EntryMode").val('Edit');
+            $("#dvmessage").empty();
+            $.getJSON("../RofferAPI/EditRecord/" + editid, function (json) {
+                $("#tblUserList").dataTable().fnDraw();
+                $("#title").val(json.Model.title);
+                $("#rofferurl").val(json.Model.rofferurl);
+                $("#simpleurl").val(json.Model.simpleurl);
+                $("#dthplanurl").val(json.Model.dthplanurl);
+                $("#dthinfourl").val(json.Model.dthinfourl);
+                $("#perdaylimit").val(json.Model.perdaylimit);
+            });
+            $('#myModal').modal('show');
+        }
+        function RefreshMaster() { tablelist.draw(); }
+    </script>
+}

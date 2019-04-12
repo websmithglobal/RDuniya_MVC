@@ -1,0 +1,215 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <link rel="stylesheet" type="text/css" href="~/Content/select2/select2.css" />
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 form-group">
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Complain Report</h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-lg-2 col-md-2 form-group">
+                        <select id="ddrange" onchange="OnDateChange()" class="select2" name="ddrange">
+                            <option value="0" selected>Today</option>
+                            <option value="1">Custom Date</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-2 form-group" id="divfromdate">
+                        <input type="text" class="form-control" id="fromdate" name="fromdate" placeholder="From Date">
+                    </div>
+                    <div class="col-lg-2 col-md-2 form-group" id="divtodate">
+                        <input type="text" class="form-control" id="todate" name="todate" placeholder="To Date">
+                    </div>
+                   
+                    <div class="col-lg-2 col-md-2 form-group">
+                        <button type="button" onclick="SearchData();" class="btn btn-primary  btn m-b-5">Search</button>
+                        <button type="button" onclick="ClearText();" class="btn btn-danger btn m-b-5">Clear</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <table id="tblDisplay" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>CREATED DATE</th>
+                                    <th>RETAILER NAME</th>
+                                    <th>RECHARGE NUMBER</th>
+                                    <th>COMPLAIN TYPE</th>
+                                    <th>DETAIL</th>
+                                    <th>ACTION</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalComplainResolve" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="custom-width-modalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <form id="frmComplain">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="modal-label">Complain Resolution</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="complainid" id="complainid" />
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label for="field-1" class="control-label">Complain Remarks :</label>
+                            <textarea type="text" class="form-control" id="adminremarks" name="adminremarks" placeholder="Complain Admin Remarks"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button type="button" onclick="SaveTicket();" class="btn btn-primary">Resolve Ticket</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Content/select2/select2.min.js"></script>
+
+    <script type="text/javascript">
+        var tablelist;
+        $(document).ready(function () {
+
+            $('#tblDisplay').DataTable();
+
+            $("#divfromdate").css('display', 'none');
+            $("#divtodate").css('display', 'none');
+
+            $('.input-daterange input').each(function () {
+                $(this).datepicker({
+                    format: 'dd/mm/yyyy',
+                });
+            });
+
+            $("#fromdate").datepicker({
+                format: 'dd/mm/yyyy',
+            });
+            $("#todate").datepicker({
+                format: 'dd/mm/yyyy',
+            });
+
+            $('.select2').select2({
+                width: '100%'
+            });
+
+        });
+
+        function ClearText() {
+            $("#divfromdate").css('display', 'none');
+            $("#divtodate").css('display', 'none');
+            $("#fromdate").val('');
+            $("#todate").val('');
+            $("#search").val('');
+            $("#ddrange").val('0');
+            $('#ddrange').trigger('change');
+
+        }
+
+        function OnDateChange() {
+            if ($("#ddrange").val() == "0") {
+                $("#divfromdate").css('display', 'none');
+                $("#divtodate").css('display', 'none');
+            }
+            else if ($("#ddrange").val() == "1") {
+                $("#divfromdate").css('display', 'block');
+                $("#divtodate").css('display', 'block');
+            }
+        }
+
+        function ResolveTicket(complainid) {
+            $("#complainid").val(complainid);
+            $('#modalComplainResolve').modal('show');
+        }
+
+        function SaveTicket() {
+
+            waitingDialog.show();
+
+            var frmModel = $("#frmComplain").serialize();
+
+            $.post("../Complain/UpdateComplain", frmModel, function (resdata) {
+                waitingDialog.show();
+                if (resdata.EntryStatus == true) {
+                    clearComplainData();
+                    SuccessNotify(resdata.Messages);
+                    tablelist.draw();
+                    waitingDialog.hide();
+                    $('#frmComplain').modal('hide');
+                } else {
+                    ErrorNotify(resdata.Messages);
+                    $('#frmComplain').modal('hide');
+                    swal("Error", resdata.Message, "error");
+                    waitingDialog.hide();
+                }
+            });
+        }
+
+        function clearComplainData() {
+            $("#adminremarks").val('');
+        }
+
+         function SearchData() {
+            tablelist = $('#tblDisplay').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "destroy": true,
+                "responsive": true,
+                "searching": true,
+                "sPaginationType": "full_numbers",
+                "info": true,
+                "lengthMenu": [[20, 50, 100, 200], [20, 50, 100, 200]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))Complain/GetAll",
+                    "type": "POST", "datatype": "json",
+                    "data": function (d) {
+                        d.ddrange = $("#ddrange").val(),
+                        d.fromdate = $("#fromdate").val(),
+                        d.todate = $("#todate").val();
+                    }
+                },
+                "aoColumns": [
+                    {
+                        data: "complainid", "bSearcable": false, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return '<label class="form-label">' + formatDate(oObj.CreatedDateTime.substring(6, oObj.CreatedDateTime.length - 2)) + '</label>';
+                        }
+                    },
+                    { data: "retailername", "bSearchable": false, "orderable": false, "orderable": true },
+                    { data: "rechargenumber", "bSearchable": false, "orderable": false, "orderable": true },
+                    { data: "complaintypetext", "bSearchable": false, "orderable": false, "orderable": false },
+                    { data: "detail", "bSearchable": false, "orderable": false, "orderable": false },
+                    {
+                        data: "complainid", "bSearchable": false, "bSortable": false, "mRender": function (data, type, oObj) {
+
+                            if (oObj.complainstatus == 1) {
+                                var html = '<button id=' + oObj.complainid + ' class="btn btn-success btn-sm" onclick="ResolveTicket(this.id)">RESOLVE TICKET</button>';
+                                return html;
+                            } else {
+                                var html = '<button id=' + oObj.complainid + ' class="btn btn-purple disabled  btn-sm"><i class="zmdi zmdi-check-all"></i>&nbsp;&nbsp;RESOLVED</button>';
+                                return html;
+                            }
+                        }
+                    },
+                ],
+            });
+        }
+    </script>
+}

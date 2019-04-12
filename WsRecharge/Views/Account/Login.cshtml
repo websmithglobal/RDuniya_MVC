@@ -1,0 +1,48 @@
+﻿@using WsRecharge.Models
+@model LoginViewModel
+@{
+    ViewBag.Title = "Log in";
+    Layout = "~/Views/Shared/_LoginPartial.cshtml";
+}
+
+<div class="panel-heading">
+    <h3 class="text-center m-t-10"> <img src="~/img/logo.png" style="width:100%;" /> </h3>
+</div>
+<div class="panel-body">
+    @using (Html.BeginForm("Login", "Account", new { ReturnUrl = ViewBag.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal m-t-10 p-20 p-b-0", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary("", new { @class = "text-danger" })
+        <div class="form-group ">
+            <div class="col-xs-12">
+                @Html.TextBoxFor(m => m.Mobile, new { @class = "form-control", placeholder = "User Name" })
+                @Html.ValidationMessageFor(m => m.Mobile, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group ">
+            <div class="col-xs-12">
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control", placeholder = "Password" })
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        <div class="form-group ">
+            <div class="col-xs-12">
+                <label class="cr-styled">
+                    <input type="checkbox" checked>
+                    <i class="fa"></i>
+                    @Html.CheckBoxFor(m => m.RememberMe)
+                    @Html.LabelFor(m => m.RememberMe)
+                </label>
+            </div>
+        </div>
+        <div class="form-group text-right">
+            <div class="col-xs-12">
+                <button class="btn btn-success w-md" type="submit"><i class="fa fa-sign-in"></i>&nbsp;&nbsp;Log In</button>
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

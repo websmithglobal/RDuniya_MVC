@@ -1,0 +1,361 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A fully featured admin theme which can be used to build CRM, CMS, etc.">
+    <meta name="author" content="Coderthemes">
+    <link rel="shortcut icon" href="~/favicon.ico">
+    <title>WEBSMITH : MULTI RECHARGE SOLUTION</title>
+    <!-- Bootstrap core CSS -->
+    <link href="~/Content/bootstrap.min.css" rel="stylesheet">
+    <link href="~/Content/bootstrap-reset.css" rel="stylesheet">
+    <!--Animation css-->
+    <link href="~/Content/animate.css" rel="stylesheet">
+    <!--Icon-fonts css-->
+    <link href="~/Content/font-awesome/css/font-awesome.css" rel="stylesheet" />
+    <link href="~/Content/ionicon/css/ionicons.min.css" rel="stylesheet" />
+    <link href="~/Content/material-design-iconic-font/css/material-design-iconic-font.min.css" rel="stylesheet" />
+    <link href="~/Content/datatables/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/datatables/buttons.bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/datatables/fixedHeader.bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/datatables/responsive.bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/datatables/scroller.bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <!--Morris Chart CSS -->
+    <link rel="stylesheet" href="~/Content/morris/morris.css">
+    <!-- sweet alerts -->
+    <link href="~/Content/sweet-alert/sweet-alert.min.css" rel="stylesheet">
+
+    <link href="~/Content/datatables/jquery.dataTables.min.css" rel="stylesheet" type="text/css" />
+    <link href="~/Content/timepicker/bootstrap-datepicker.min.css" rel="stylesheet" />
+    <!-- Custom styles for this template -->
+    <link href="~/Content/style.css" rel="stylesheet">
+    <link href="~/Content/helper.css" rel="stylesheet" />
+    <link href="~/Content/style-responsive.css" rel="stylesheet" />
+    <link href="~/Content/customstyle.css" rel="stylesheet" />
+
+    <link href="~/Content/notifications/notification.css" rel="stylesheet" />
+
+    @RenderSection("styles", required: false)
+
+    <style>
+        input:focus {
+            background-color: #FFFCC8 !important;
+        }
+    </style>
+</head>
+<body>
+    @{
+        string ControllerName, ActionName, ActionController;
+        ControllerName = HttpContext.Current.Request.RequestContext.RouteData.Values["controller"].ToString();
+        ActionName = HttpContext.Current.Request.RequestContext.RouteData.Values["action"].ToString();
+        ActionController = ControllerName + ActionName;
+    }
+    <!-- Aside Start-->
+    <aside class="left-panel">
+        <!-- brand -->
+        <div class="logo logo2">
+            <a href="javascript:void(0);" class="logo-expanded">
+                <img src="~/img/logo.png" style="width:100%; margin-top:15px;" />
+            </a>
+        </div>
+        <!-- / brand -->
+        <!-- Navbar Start -->
+        <nav class="navigation">
+            <ul class="list-unstyled">
+
+                <li class="has-submenu @(ActionController == "HomeIndex"? "active" : "")">
+                    <a href="/Home"><i class="zmdi zmdi-view-dashboard"></i> <span class="nav-label">Dashboard</span></a>
+                </li>
+
+                @if (User.isInRoles("administrator", "masterdistributor", "distributor", "retailer"))
+                {
+                    <li class="has-submenu @((ActionController == "DmtCustomerIndex") ? "active" : "")">
+                        <a href="#"><i class="zmdi zmdi-collection-text"></i><span class="nav-label">DMT</span><span class="menu-arrow"></span></a>
+                        <ul class="list-unstyled">
+                            <li class='@((ActionController == "DmtCustomerIndex") ? "active" : "")'>
+                                <a href="~/DmtCustomer/Index">DMT Customer</a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+
+                @if (User.isInRoles("administrator", "masterdistributor", "distributor"))
+                {
+                    <li class="has-submenu @((ActionController == "ApiUserIndex") || (ActionController == "MasterDistributorIndex") || (ActionController == "DistributorIndex")|| (ActionController == "RetailerIndex") ? "active" : "")">
+                        <a href="#"><i class="zmdi zmdi-account-o"></i> <span class="nav-label">Users</span><span class="menu-arrow"></span></a>
+                        <ul class="list-unstyled">
+                            @if (User.isInRoles("administrator"))
+                            {
+                                <li class='@((ActionController == "ApiUserIndex") ? "active" : "")'>@Html.ActionLink("Api User", "Index", "ApiUser")</li>
+                                <li class='@((ActionController == "MasterDistributorIndex") ? "active" : "")'>@Html.ActionLink("Master Distributor", "Index", "MasterDistributor")</li>
+                            }
+                            @if (User.isInRoles("masterdistributor"))
+                            {
+                                <li class='@((ActionController == "DistributorIndex") ? "active" : "")'>@Html.ActionLink("Distributor", "Index", "Distributor")</li>
+                            }
+                            @if (User.isInRoles("distributor"))
+                            {
+                                <li class='@((ActionController == "RetailerIndex") ? "active" : "")'>@Html.ActionLink("Retailer", "Index", "Retailer")</li>
+                            }
+                        </ul>
+                    </li>
+                }
+
+                <li class="has-submenu @((ActionController == "AddFundIndex") || (ActionController == "fundTransferIndex") ? "active" : "")">
+                    <a href="#"><i class="zmdi zmdi-balance-wallet"></i> <span class="nav-label">Funds Transfer</span><span class="menu-arrow"></span></a>
+                    <ul class="list-unstyled">
+                        @if (User.isInRoles("administrator"))
+                        {
+                            <li class='@((ActionController == "AddFundIndex") ? "active" : "")'>
+                                <a href="~/AddFund/Index">Add Fund To Your Account</a>
+                            </li>
+                            <li class='@((ActionController == "fundTransferIndex") ? "active" : "")'>
+                                <a href="~/fundTransfer/Index">Fund Transfer</a>
+                            </li>
+                            <li class="@((ControllerName == "WalletRequestApproved") ? "active" : "")">
+                                <a href="~/WalletRequest/Approved">Pending Wallet Request</a>
+                            </li>
+                        }
+                        @if (User.isInRoles("masterdistributor") || User.isInRoles("distributor"))
+                        {
+                            <li class='@((ActionController == "fundTransferIndex") ? "active" : "")'>
+                                <a href="~/fundTransfer/Index">Fund Transfer</a>
+                            </li>
+                            <li class="@((ControllerName == "WalletRequestIndex") ? "active" : "")">
+                                <a href="~/WalletRequest/Index">New Wallet Request</a>
+                            </li>
+                            <li class="@((ControllerName == "WalletRequestApproved") ? "active" : "")">
+                                <a href="~/WalletRequest/Approved">Pending Wallet Request</a>
+                            </li>
+                        }
+                        @if (User.isInRoles("retailer") || User.isInRoles("apiuser"))
+                        {
+                            <li class="@((ControllerName == "WalletRequestIndex") ? "active" : "")">
+                                <a href="~/WalletRequest/Index">New Wallet Request</a>
+                            </li>
+                        }
+                    </ul>
+                </li>
+
+                @if (User.isInRoles("administrator"))
+                {
+                    <li class="has-submenu @((ControllerName == "ServiceMaster") || (ControllerName == "ApiMaster") || (ControllerName == "OperatorSetup") || (ControllerName == "SMSMaster") || (ControllerName == "Routing") || (ControllerName == "OperatorMapping") || (ControllerName == "CountryMaster") || (ControllerName == "CircleMaster") ? "active" : "")">
+                        <a href="#"><i class="zmdi zmdi-format-list-bulleted"></i> <span class="nav-label">Masters</span><span class="menu-arrow"></span></a>
+                        <ul class="list-unstyled">
+                            <li class='@((ControllerName == "ServiceMaster") ? "active" : "")'><a href="~/ServiceMaster">Service Master</a></li>
+                            <li class='@((ControllerName == "ApiMaster") ? "active" : "")'><a href="~/ApiMaster">Apis</a></li>
+                            <li class='@((ControllerName == "OperatorSetup") ? "active" : "")'><a href="~/OperatorSetup">Operator Setup</a></li>
+                            <li class='@((ControllerName == "SMSMaster") ? "active" : "")'><a href="~/SMSMaster">SMS Setup</a></li>
+                            <li class='@((ControllerName == "Routing") ? "active" : "")'><a href="~/Routing">Operator Routing</a></li>
+                            <li class='@((ControllerName == "OperatorMapping") ? "active" : "")'><a href="~/OperatorMapping">Operator Code Mapping</a></li>
+                            <li class='@((ControllerName == "CountryMaster") ? "active" : "")'><a href="~/CountryMaster">Country Master</a></li>
+                            <li class='@((ControllerName == "CircleMaster") ? "active" : "")'><a href="~/CircleMaster">Circle Master</a></li>
+                        </ul>
+                    </li>
+                    <li class="has-submenu @((ControllerName == "RechargeSlab") || (ControllerName == "DMTSlabCommi") ? "active" : "")">
+                        <a href="#"><i class="zmdi zmdi-format-list-bulleted"></i> <span class="nav-label">Commission Setup</span><span class="menu-arrow"></span></a>
+                        <ul class="list-unstyled">
+                            <li class='@((ControllerName == "RechargeSlab") ? "active" : "")'><a href="~/RechargeSlab">Recharge Slab</a></li>
+                            <li class='@((ControllerName == "DMTSlabCommi") ? "active" : "")'><a href="~/DMTSlabCommi">DMT Slab</a></li>
+                        </ul>
+                    </li>
+                }
+
+                @*@if (User.isInRoles("masterdistributor", "distributor"))
+                    {
+                        <li class="has-submenu @((ActionController == "fundTransferIndex") ? "active" : "")">
+                            <a href="~/fundTransfer/Index"><i class="zmdi zmdi-balance-wallet"></i> <span>Fund Transfer</span></a>
+                        </li>
+                    }
+
+                    @if (User.isInRoles("apiuser", "masterdistributor", "distributor", "retailer"))
+                    {
+                        <li class="has-submenu @((ActionController == "WalletRequestIndex") ? "active" : "")">
+                            <a href="/WalletRequest/Index"><i class="zmdi zmdi-balance-wallet"></i>
+                            <span class="nav-label">New Wallet Request</span></a>
+                        </li>
+                    }
+
+                    @if (User.isInRoles("administrator", "masterdistributor", "distributor"))
+                    {
+                        <li class="has-submenu @(ActionController == "WalletRequestApproved" ? "active" : "")">
+                            <a href="/WalletRequest/Approved"><i class="zmdi zmdi-balance-wallet"></i>
+                            <span class="nav-label">Request Approval</span></a>
+                        </li>
+                    }*@
+
+                @if (User.isInRoles("administrator", "masterdistributor", "distributor", "retailer", "apiuser"))
+                {
+                    <li class="has-submenu @((ControllerName== "RechargeReport") || (ControllerName== "LedgerReport") || (ControllerName== "FundReport") || (ControllerName== "RofferDetailReport") ? "active" : "")">
+                        <a href="#"><i class="zmdi zmdi-file-text"></i> <span class="nav-label">Reports</span><span class="menu-arrow"></span></a>
+                        <ul class="list-unstyled">
+                            <li class="@((ControllerName == "RechargeReport") ? "active" : "")"><a href="/RechargeReport">Recharge Report</a></li>
+                            <li class="@((ControllerName == "LedgerReport") ? "active" : "")"><a href="/LedgerReport">Ledger Report</a></li>
+                            <li class="@((ControllerName == "FundReport") ? "active" : "")"><a href="/FundReport">Fund Transfer Report</a></li>
+                            @if (User.isInRoles("administrator"))
+                            {
+                                <li class="@((ControllerName == "Complain") ? "active" : "")"><a href="~/Complain">Complaint Report</a></li>
+                                <li><a href="#">Error Log Report</a></li>
+                            }
+                        </ul>
+                    </li>
+                }
+
+                <li class="has-submenu @(ActionController == "ActivitylogIndex"? "active" : "")">
+                    <a href="/Activitylog"><i class="zmdi zmdi-file-text"></i> <span class="nav-label">Activity Log</span></a>
+                </li>
+
+                <li class="has-submenu">
+                    <a href="#"><i class="fa fa-sign-out"></i> <span class="nav-label">Log Out</span></a>
+                </li>
+            </ul>
+        </nav>
+
+    </aside>
+    <!-- Aside Ends-->
+    <!--Main Content Start -->
+    <section class="content">
+        <!-- Header -->
+        <header class="top-head container-fluid skin-blue">
+            <button type="button" class="navbar-toggle pull-left">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Search -->
+            @*<form role="search" class="navbar-left app-search pull-left hidden-xs">
+                    <input type="text" placeholder="Search..." class="form-control">
+                    <a href="#"><i class="fa fa-search"></i></a>
+                </form>*@
+
+            <!-- Left navbar -->
+            <nav class="navbar-default" role="navigation">
+
+                <!-- Right navbar -->
+                <ul class="nav navbar-nav navbar-right top-menu top-right-menu">
+                    @if (Request.IsAuthenticated)
+                    {
+                        @Html.AntiForgeryToken()
+                        <li class="dropdown text-center">
+                            <a data-toggle="dropdown" class="dropdown-toggle" href="#">
+                                <img src="../img/avatar-2.jpg" class="img-circle profile-img thumb-sm">
+                                <span class="username">@User.Identity.Name </span> <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu pro-menu fadeInUp animated" tabindex="5003" style="overflow: hidden; outline: none;">
+                                <li><a href="/Profile"><i class="fa fa-briefcase"></i>Profile</a></li>
+                                <li><a href="/Manage/ChangePassword"><i class="fa fa-cog"></i> Change Password</a></li>
+                                @using (Html.BeginForm("LogOff", "Account", FormMethod.Post, new { id = "logoutForm" }))
+                                {
+                                    @Html.AntiForgeryToken()
+                                    <li><a href="javascript:document.getElementById('logoutForm').submit()"><i class="fa fa-sign-out"></i> Log Out</a></li>
+                                }
+                            </ul>
+                        </li>
+                    }
+                </ul>
+            </nav>
+        </header>
+        <!-- Header Ends -->
+        <!-- Page Content Start -->
+        <!-- ================== -->
+        <div class="wraper container-fluid">
+            @RenderBody()
+        </div>
+        <!-- Page Content Ends -->
+        <!-- ================== -->
+        <!-- Footer Start -->
+        <footer class="footer">
+            <span class="pull-left"> Copyright © 2018 <span style="color:#f40850;"> Websmith Solution.</span></span>
+            <span class="pull-right" style="color:blue;">
+                Login As : @User.GetUserRole()
+            </span>
+        </footer>
+        <!-- Footer Ends -->
+    </section>
+    <!-- Main Content Ends -->
+    <!-- js placed at the end of the document so the pages load faster -->
+    <script src="~/Scripts/jquery.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/modernizr.min.js"></script>
+    <script src="~/Scripts/wow.min.js"></script>
+    <script src="~/Scripts/jquery.scrollTo.min.js"></script>
+    <script src="~/Scripts/jquery.nicescroll.js" type="text/javascript"></script>
+
+    <script src="~/Scripts/waitingdialog.js"></script>
+    <script src="~/Scripts/general.js"></script>
+
+    <script src="~/Content/notifications/notify.min.js"></script>
+    <script src="~/Content/notifications/notify-metro.js"></script>
+    <script src="~/Content/notifications/notifications.js"></script>
+
+    <script src="~/Content/chat/moment-2.2.1.js"></script>
+    <!-- Counter-up -->
+    <script src="~/Scripts/waypoints.min.js" type="text/javascript"></script>
+    <script src="~/Scripts/jquery.counterup.min.js" type="text/javascript"></script>
+    <!-- EASY PIE CHART JS -->
+    <script src="~/Content/easypie-chart/easypiechart.min.js"></script>
+    <script src="~/Content/easypie-chart/jquery.easypiechart.min.js"></script>
+    <script src="~/Content/easypie-chart/example.js"></script>
+
+    <!-- DataTables -->
+    <script src="~/Content/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/datatables/dataTables.bootstrap.js"></script>
+
+    <!--C3 Chart-->
+    <script src="~/Content/c3-chart/d3.v3.min.js"></script>
+    <script src="~/Content/c3-chart/c3.js"></script>
+    <!--Morris Chart-->
+    <script src="~/Content/morris/morris.min.js"></script>
+    <script src="~/Content/morris/raphael.min.js"></script>
+    <!-- sparkline -->
+    <script src="~/Content/sparkline-chart/jquery.sparkline.min.js" type="text/javascript"></script>
+    <script src="~/Content/sparkline-chart/chart-sparkline.js" type="text/javascript"></script>
+    <!-- sweet alerts -->
+
+    <script src="~/Content/sweet-alert/sweet-alert.min.js"></script>
+    <script src="~/Content/sweet-alert/sweet-alert.init.js"></script>
+    <script src="~/Scripts/jquery.app.js"></script>
+    <script src="~/Content/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/Content/datatables/dataTables.bootstrap.js"></script>
+    <script src="~/Content/datatables/dataTables.fixedHeader.min.js"></script>
+    <script src="~/Content/datatables/dataTables.keyTable.min.js"></script>
+    <script src="~/Content/datatables/dataTables.responsive.min.js"></script>
+    <script src="~/Content/datatables/responsive.bootstrap.min.js"></script>
+    <script src="~/Content/datatables/dataTables.scroller.min.js"></script>
+
+    <!-- Chat -->
+    <script src="~/Scripts/jquery.chat.js"></script>
+    <!-- Dashboard -->
+    <script src="~/Scripts/jquery.dashboard.js"></script>
+    <!-- Todo -->
+    <script src="~/Scripts/jquery.todo.js"></script>
+
+    <script src="~/Content/timepicker/bootstrap-datepicker.js"></script>
+
+    <script type="text/javascript">
+        /*
+            ==============================================
+                Counter Up
+            ===============================================
+        */
+        jQuery(document).ready(function ($) {
+            $('.counter').counterUp({
+                delay: 100,
+                time: 1200
+            });
+        });
+
+        function SuccessNotify(msg) {
+            $.Notification.autoHideNotify('success', 'top right', 'Success', msg);
+        }
+
+        function ErrorNotify(msg) {
+            $.Notification.autoHideNotify('error', 'top right', 'Message', msg);
+        }
+    </script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>

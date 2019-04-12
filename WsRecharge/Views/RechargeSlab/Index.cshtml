@@ -1,0 +1,194 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <link rel="stylesheet" type="text/css" href="~/Content/select2/select2.css" />
+}
+<div class="row">
+    <div class="col-lg-12 col-md-12 form-group">
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Slab Commission Setup</h3>
+                
+            </div>
+            <div class="panel-body">
+                <form id="frmSlab">
+                    <input type="hidden" id="slabid" name="slabid" />
+                    <input type="hidden" id="EntryMode" name="EntryMode" />
+                    <div class="row">
+                        <div class="col-lg-2 col-md-2 form-group">
+                            <select id="rechargeslabid" onchange="OnslabChanges()" class="select2" name="rechargeslabid"></select>
+                        </div>
+                        <div class="col-lg-2 col-md-2 form-group" id="divslabname" style="display:none;">
+                            <input type="text" class="form-control" id="slabname" name="slabname" placeholder="Slab Name">
+                        </div>
+                        <div class="col-lg-2 col-md-2 form-group" id="divbtnsave" style="display:none;">
+                            <button type="button" onclick="SaveEntry();" class="btn btn-primary  btn m-b-5">Save</button>
+                            <button type="button" onclick="ClearText();" class="btn btn-danger btn m-b-5">Clear</button>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+            <div class="panel-body">
+                <form id="frmCommi">
+                    <input type="hidden" id="rechargeslabid2" name="rechargeslabid2" />
+                    <div class="row">
+                        <div class="col-md-12 col-sm-12 col-xs-12">
+                            <button type="button" id="divsave" style="display:none" onclick="SaveAll();" class="btn btn-primary  btn m-b-5 pull-right">Save All</button>
+                            <table id="tblDisplay" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                                <thead>
+                                    <tr>
+                                        <th>OPERATOR NAME</th>
+                                        <th>MD</th>
+                                        <th>SD</th>
+                                        <th>R</th>
+                                        <th>CHARGE</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script src="~/Content/select2/select2.min.js"></script>
+    <script type="text/javascript">
+        var tablelist;
+        $(document).ready(function () {
+            BindSlab()
+            $('.select2').select2({
+                width: '100%'
+            });
+        });
+        function OnslabChanges(id) {
+            var slabid = $("#rechargeslabid option:selected").val();
+            if (slabid == '12000000-1200-1200-1200-120000000000') {
+                $("#divslabname").css('display', 'block');
+                $("#divbtnsave").css('display', 'block');
+                $("#divsave").css('display', 'none');
+            }
+            else {
+                $("#divslabname").css('display', 'none');
+                $("#divbtnsave").css('display', 'none');
+                if (slabid != '00000000-0000-0000-0000-000000000000') {
+                    $("#divsave").css('display', 'block');
+                    $("#rechargeslabid2").val(slabid);
+                    GetAll();
+                }
+
+            }
+        }
+        function BindSlab() {
+            waitingDialog.show('Please Wait...', { dialogSize: 'sm', progressType: 'info' });
+            $.ajax({
+                type: "POST",
+                url: "/RechargeSlab/GetSlab",
+                async: false,
+                data: null,
+                contentType: "application/json", dataType: "json",
+                success: function (mRes) {
+                    waitingDialog.hide();
+                    if (mRes.length > 0) {
+                        $("#rechargeslabid").append('<option value="00000000-0000-0000-0000-000000000000" selected>--Select Slab--</option>');
+                        $("#rechargeslabid").append('<option value="12000000-1200-1200-1200-120000000000">Add New</option>');
+                        for (var i = 0; i < mRes.length; i++) {
+                            $("#rechargeslabid").append('<option value="' + mRes[i].slabid + '">' + mRes[i].slabname + '</option>');
+                        }
+                    }
+                    else {
+                        $("#rechargeslabid").html(''); $("#rechargeslabid").append('<option value="00000000-0000-0000-0000-000000000000" selected>--Select Slab--</option>');
+                        $("#rechargeslabid").append('<option value="12000000-1200-1200-1200-120000000000">Add New</option>');
+                    }
+                    $('#rechargeslabid').trigger('change');
+                }
+
+            });
+        }
+        function SaveEntry() {
+            var frmModel = $("#frmSlab").serialize();
+            $.post("../RechargeSlab/SaveEntry", frmModel, function (resdata) {
+                if (resdata.EntryStatus == true) {
+                    $("#dvmessage").empty();
+                    $("#slabname").val("");
+                    $("#divslabname").css('display', 'none');
+                    $("#divbtnsave").css('display', 'none');
+                    $("#rechargeslabid").empty();
+                    BindSlab()
+                    $.Notification.autoHideNotify('success', 'top right', 'Success', resdata.Messages);
+                } else {
+                    $("#dvindexmessage").empty();
+                    $.Notification.autoHideNotify('error', 'top right', 'Error', resdata.Messages);
+                }
+            });
+        }
+        function GetAll() {
+                tablelist = $('#tblDisplay').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "destroy": true,
+                "bPaginate": false,
+                "responsive": true,
+                "searching": false,
+                "info": true,
+                    "lengthMenu": [[100, 200, 300, 400], [100, 200, 300, 400]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))RechargeSlab/GetAll",
+                    "type": "POST", "datatype": "json",
+                    "data": function (d) {
+                        d.slabid = $("#rechargeslabid option:selected").val();
+                    }
+                },
+                "aoColumns": [
+                    {
+                        data: "s.rechargeslabid", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return '<span>' + oObj.operatorname + '</span><input type="hidden" name="hfoperatorcode" value=' + oObj.operatorcode + ' /> ';
+                        },
+                    },
+                    {
+                        data: "s.rechargeslabid", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return '<input type="text" value=' + oObj.md +' class="form-control" id="md" name="md">';
+                        },
+                    },
+                    {
+                        data: "s.rechargeslabid", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return '<input type="text" value=' + oObj.sd +' class="form-control" id="sd" name="sd">';
+                        },
+                    },
+                    {
+                        data: "s.rechargeslabid", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return '<input type="text" value=' + oObj.r+' class="form-control" id="r" name="r">';
+                    },
+                    },
+                    {
+                        data: "s.rechargeslabid", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return '<input type="text" value=' + oObj.charge +' class="form-control" id="charge" name="charge">';
+                        },
+                    },
+                ],
+            });
+
+        }
+        function SaveAll() {
+            waitingDialog.show('Please Wait...', { dialogSize: 'sm', progressType: 'info' });
+            var FrmModel = $("#frmCommi").serialize();
+            $.post("../RechargeSlab/SaveAll", FrmModel, function (resdata) {
+                waitingDialog.hide();
+                if (resdata.EntryStatus == true) {
+                    $.Notification.autoHideNotify('success', 'top right', 'Success', resdata.Messages);
+                } else {
+                    $.Notification.autoHideNotify('error', 'top right', 'Error', resdata.Messages);
+                }
+            }).fail(function (response) {
+                $.Notification.autoHideNotify('error', 'top right', 'Error', response.responseText);
+            });
+        }
+    </script>
+}
+

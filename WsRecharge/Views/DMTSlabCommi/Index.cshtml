@@ -1,0 +1,277 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <link rel="stylesheet" type="text/css" href="~/Content/select2/select2.css" />
+}
+
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="custom-width-modalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="frmDmtSlab">
+                <input type="hidden" id="dmtslabid" name="dmtslabid" />
+                <input type="hidden" id="EntryMode" name="EntryMode" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="custom-width-modalLabel">Add New Slab</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="dvmessage"></div>
+                    <div id="dvindexmessage"></div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Slab Name :</label>
+                                <input type="text" class="form-control" id="dmtslabname" maxlength="50" name="dmtslabname" placeholder="Slab Name">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" onclick="SaveEntry();" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <span class="pull-right">
+            <button class="btn btn-inverse" type="button" onclick="AddSlab();"><i class="fa fa-plus-square-o"></i>&nbsp;Add New Slab</button>
+            <button class="btn btn-inverse" type="button" onclick="RefreshMaster();"><i class="fa fa-refresh"></i></button>
+        </span>
+    </div>
+    <br/><br />
+    <div class="col-md-12">
+        <form id="frmData">
+            <div class="panel panel-color panel-info">
+                <div class="panel-heading">
+                    <h3 class="panel-title">
+                        Set Commission & Charges (Rupees)
+                    </h3>
+                </div>
+                <div class="panel-body">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <select class="select2" onchange="BindSlabById()" id="up_dmtslabid" name="up_dmtslabid">
+                                <option value="00000000-0000-0000-0000-000000000000" selected>Select Slab</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <span class="pull-right">
+                                    <button class="btn btn-success btn-sm m-b-5" type="button" id="btnSaveCommi">SAVE ALL</button>
+                                </span>
+                                <label for="currentpassword">Manage Pricing :</label>
+                                <table id="tblprice" class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>FROM VALUE</th>
+                                            <th>TO VALUE</th>
+                                            <th>MD</th>
+                                            <th>SD</th>
+                                            <th>R</th>
+                                            <th>TYPE</th>
+                                            <th>ACTION</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <input type="text" class="form-control" id="txtfromvalue" name="txtfromvalue" placeholder="From Value">
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" id="txttovalue" name="txttovalue" placeholder="To Value">
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" id="commissionmd" name="commissionmd" placeholder="Master Distrubutor">
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" id="commissionsd" name="commissionsd" placeholder="Distributor">
+                                            </td>
+                                            <td>
+                                                <input type="text" class="form-control" id="commissionrd" name="commissionrd" placeholder="Retailer">
+                                            </td>
+                                            <td>
+                                                <select name="commissiontype" id="commissiontype" class="form-control">
+                                                    <option value="1">PER</option>
+                                                    <option value="2">RS</option>
+                                                </select>
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-success btn-sm m-b-5" type="button" id="btnadd">ADD</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+@section scripts{
+    <script src="~/Content/select2/select2.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            BindSlab();
+            $('.select2').select2({
+                width: '100%'
+            });
+
+        });
+        function AddSlab() {
+            $("#dvindexmessage").empty();
+            $("#dvmessage").empty();
+            $("#dmtslabname").val('');
+            $('#myModal').modal('show');
+        }
+        function SaveEntry() {
+            if ($("#dmtslabname").val() == "" || $("#dmtslabname").val() == " " || $("#dmtslabname").val() == null) {
+                ErrorNotify("Slab Name Required");
+                return false;
+            }
+            waitingDialog.show();
+            var frmModel = $("#frmDmtSlab").serialize();
+            $.post("../DMTSlabCommi/SaveEntry", frmModel, function (resdata) {
+                waitingDialog.hide();
+                if (resdata.EntryStatus == true) {
+                    $("#dvmessage").empty();
+                    $("#dmtslabname").val("");
+                    $('#myModal').modal('hide');
+                    //$("#dvindexmessage").empty().append(resdata.MessageHtml);
+                    //$("#up_dmtslabid").empty();
+                    BindSlab();
+                    swal("Slab Created Successfully", "", "success");
+                } else {
+                    $("#dvindexmessage").empty();
+                    $("#dvmessage").empty().append(resdata.MessageHtml);
+                }
+            });
+        }
+
+        $("#btnadd").click(function () {
+            var txtdmtid = $("#up_dmtslabid option:selected").val();
+            var textfromvalue = $("#txtfromvalue").val();
+            var texttovalue = $("#txttovalue").val();
+            var textmd = $("#commissionmd").val();
+            var textsd = $("#commissionsd").val();
+            var textrd = $("#commissionrd").val();
+            var texttype = $("#commissiontype").val();
+
+            if (txtdmtid == '00000000-0000-0000-0000-000000000000') { $.Notification.autoHideNotify('error', 'top right', 'Error', 'Please select a slab.'); }
+
+            if (textfromvalue == '' || texttovalue == '' || textmd == '' || textsd == '' || textrd == '' || texttype == '' ) {
+                $.Notification.autoHideNotify('error', 'top right', 'Error', 'Please enter all required value.');
+            }
+            else {
+                var rowindex = $("#tblprice tr").length;
+                var tr = $('<tr/>');
+                tr.append("<td>" + textfromvalue + "<input type='hidden' name='hffrom' value='" + textfromvalue + "' /></td>");
+                tr.append("<td>" + texttovalue + "<input type='hidden' name='hfto' value='" + texttovalue + "' /></td>");
+                tr.append("<td>" + textmd + "<input type='hidden' name='hfmd' value='" + textmd + "' /></td>");
+                tr.append("<td>" + textsd + "<input type='hidden' name='hfsd' value='" + textsd + "' /></td>");
+                tr.append("<td>" + textrd + "<input type='hidden' name='hfrd' value='" + textrd + "' /></td>");
+
+                if (texttype == 1) {
+                    tr.append("<td>PER.<input type='hidden' name='hftype' value='" + texttype + "' /></td>");
+                } else {
+                    tr.append("<td>RS.<input type='hidden' name='hftype' value='" + texttype + "' /></td>");
+                }
+                
+                tr.append("<td><button type='button' class='btn btn-danger btn-sm m-b-5' onclick='remove(" + rowindex + ")'>REMOVE</button></td>");
+                $("#tblprice > tbody").append(tr);
+                cleartext();
+            }
+        });
+        function BindSlab() {
+            $.ajax({
+                type: "POST",
+                url: "/DMTSlabCommi/GetSlab",
+                data: null,
+                contentType: "application/json", dataType: "json",
+                success: function (mRes) {
+                    if (mRes.length > 0) {
+                        for (var i = 0; i < mRes.length; i++) {
+                            $("#up_dmtslabid").append('<option value="' + mRes[i].dmtslabid + '">' + mRes[i].dmtslabname + '</option>');
+                        }
+                    }
+                    else { $("#up_dmtslabid").html(''); $("#up_dmtslabid").append('<option value="00000000-0000-0000-0000-000000000000" selected>Select Slab</option>'); }
+                }
+            });
+        }
+        function remove(index) {
+            $("table tr:eq(" + index + ")").remove();
+        }
+        $("#btnSaveCommi").click(function () {
+            $("#dvmessage").empty();
+            waitingDialog.show();
+            var FrmModel = $("#frmData").serialize();
+            $.post("../DMTSlabCommi/SaveCommision", FrmModel, function (resdata) {
+                waitingDialog.hide();
+                if (resdata.EntryStatus == true) {
+                    $("#up_dmtslabid").empty();
+                    BindSlab();
+                    $.Notification.autoHideNotify('success', 'top right', 'Success', resdata.Messages);
+                } else {
+                    $.Notification.autoHideNotify('error', 'top right', 'Error', resdata.Messages);
+                }
+            }).fail(function (response) {
+                $.Notification.autoHideNotify('error', 'top right', 'Error', response.responseText);
+            });
+        });
+        function cleartext() {
+            $("#txtfromvalue").val('');
+            $("#txttovalue").val('');
+            $("#commissionmd").val('');
+            $("#commissionsd").val('');
+            $("#commissionrd").val('');
+            $("#commissiontype").val('');
+        }
+        function BindSlabById() {
+            waitingDialog.show();
+            var mData = "{id:'" + $("#up_dmtslabid").val() + "'}";
+            $.ajax({
+                type: "POST",
+                url: "/DMTSlabCommi/GetSlabByID",
+                data: mData,
+                contentType: "application/json", dataType: "json",
+                success: function (mRes) {
+                    waitingDialog.hide();
+                    // $("#tblprice > tbody").empty();
+                    if (mRes.length > 0)
+                    {
+                        for (var i = 0; i < mRes.length; i++)
+                        {
+                            var rowindex = $("#tblprice tr").length;
+                            var tr = $('<tr/>');
+                            tr.append("<td>" + mRes[i].dmtfromval + "<input type='hidden' name='hffrom' value='" + mRes[i].dmtfromval + "' /></td>");
+                            tr.append("<td>" + mRes[i].dmttoval + "<input type='hidden' name='hfto' value='" + mRes[i].dmttoval + "' /></td>");
+                            tr.append("<td>" + mRes[i].dmtmd + "<input type='hidden' name='hfmd' value='" + mRes[i].dmtmd + "' /></td>");
+                            tr.append("<td>" + mRes[i].dmtsd + "<input type='hidden' name='hfsd' value='" + mRes[i].dmtsd + "' /></td>");
+                            tr.append("<td>" + mRes[i].dmtrd + "<input type='hidden' name='hfrd' value='" + mRes[i].dmtrd + "' /></td>");
+
+                            if (mRes[i].dmttype == 1) {
+                                tr.append("<td>PER.<input type='hidden' name='hftype' value='" + mRes[i].dmttype + "' /></td>");
+                            } else {
+                                tr.append("<td>RS.<input type='hidden' name='hftype' value='" + mRes[i].dmttype + "' /></td>");
+                            }
+                            tr.append("<td><button type='button' class='btn btn-danger btn-sm m-b-5' onclick='remove(" + rowindex + ")'>REMOVE</button></td>");
+                            $("#tblprice > tbody").append(tr);
+                        }
+                    }
+                    else
+                    {
+
+                    }
+                }
+            });
+        }
+    </script>
+}

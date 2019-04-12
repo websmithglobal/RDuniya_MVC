@@ -1,0 +1,29 @@
+﻿@model WsRecharge.Models.SendCodeViewModel
+@{
+    ViewBag.Title = "Send";
+    Layout = "~/Views/Shared/_LoginPartial.cshtml";
+}
+<div class="panel-heading">
+    <h3 class="text-center m-t-10"> <img src="~/img/ws-logo.png" /> </h3>
+</div>
+<div class="panel-body">
+    @using (Html.BeginForm("SendCode", "Account", new { ReturnUrl = Model.ReturnUrl }, FormMethod.Post, new { @class = "form-horizontal m-t-10 p-20 p-b-0", role = "form" }))
+    {
+        @Html.AntiForgeryToken()
+        @Html.Hidden("rememberMe", @Model.RememberMe)
+        <div class="form-group ">
+            <div class="col-xs-12">
+                Send verification code:<br />
+                @Html.DropDownListFor(model => model.SelectedProvider, Model.Providers, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="form-group text-right">
+            <div class="col-xs-12">
+                <input type="submit" value="Send Code" class="btn btn-success w-md" />
+            </div>
+        </div>
+    }
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+}

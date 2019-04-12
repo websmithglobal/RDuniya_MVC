@@ -1,0 +1,397 @@
+﻿@{
+    /**/
+
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <link rel="stylesheet" type="text/css" href="~/Content/select2/select2.css" />
+}
+<div class="row">
+
+    <div class="col-md-12">
+        <span class="pull-right">
+            <button class="btn btn-inverse" onclick="AddMD();"><i class="fa fa-plus-square-o"></i>&nbsp;Add Master Dist</button>
+            <button class="btn btn-inverse" type="button" onclick="RefreshMaster();"><i class="fa fa-refresh"></i></button>
+        </span>
+    </div>
+    <br/><br />
+    <div class="col-md-12">
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">
+                    Master Distributor
+                </h3>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12 col-sm-12 col-xs-12">
+                        <table id="tblDisplay" class="table table-striped table-bordered dt-responsive nowrap" cellspacing="0" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>ENTRY DATE</th>
+                                    <th>USER NAME</th>
+                                    <th>MOBILE</th>
+                                    <th>EMAIL</th>
+                                    <th>ADDRESS</th>
+                                    <th>USERLEVEL</th>
+                                    <th>SLAB NAME</th>
+                                    <th>STATUS</th>
+                                    <th>EDIT</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="myModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="custom-width-modalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="frmMD">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="custom-width-modalLabel">Add New Master Distributor</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="dvmessage"></div>
+                    <div id="dvindexmessage"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">User Name :</label>
+                                <input type="text" class="form-control" id="UserName" maxlength="50" name="UserName" placeholder="User Name">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Email Id :</label>
+                                <input type="text" class="form-control" id="Email" maxlength="50" name="Email" placeholder="Email Id">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" id="divpassword">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Password :</label>
+                                <input type="password" class="form-control" id="Password" maxlength="50" name="Password" placeholder="Password">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">ConfirmPassword :</label>
+                                <input type="password" class="form-control" id="ConfirmPassword" maxlength="50" name="ConfirmPassword" placeholder="ConfirmPassword">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Mobile :</label>
+                                <input type="text" class="form-control" id="Mobile" maxlength="12" name="Mobile" placeholder="Mobile Number">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Address :</label>
+                                <textarea type="text" class="form-control" id="Address" maxlength="255" name="Address" placeholder="Address"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Select Slab :</label>
+                                <select class="select2" name="slabid" id="slabid">
+                                    <option value="00000000-0000-0000-0000-000000000000" selected>-Select Slab-</option>
+                                    @foreach (Web.Framework.Entity.RechargeSlab el in ViewBag.Slab)
+                                    {
+                                        <option value="@el.slabid">@el.slabname</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Select DMT Slab :</label>
+                                <select class="select2" name="dmt_slabid" id="slabid_dmt">
+                                    <option value="00000000-0000-0000-0000-000000000000" selected>-Select DMT Slab-</option>
+                                    @foreach (Web.Framework.Entity.DMT_Slab el in ViewBag.DmtSlab)
+                                    {
+                                        <option value="@el.dmtslabid">@el.dmtslabname</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" onclick="SaveEntry();" class="btn btn-primary">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="UpdateMyModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="custom-width-modalLabel" aria-hidden="true" style="display: none;">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="frmUpdateMD">
+                <input type="hidden" id="up_id" name="up_id" />
+                <input type="hidden" id="up_userid" name="up_userid" />
+                <input type="hidden" id="EntryMode" name="EntryMode" />
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title" id="custom-width-modalLabel">Modify Detail</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="dvmessage"></div>
+                    <div id="dvindexmessage"></div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">User Name :</label>
+                                <input type="text" class="form-control" id="up_username" maxlength="50" name="up_username" placeholder="User Name">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Email Id :</label>
+                                <input type="text" class="form-control" id="up_email" maxlength="50" name="up_email" placeholder="Email Id">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Address :</label>
+                                <textarea type="text" class="form-control" id="up_address" maxlength="255" name="up_address" placeholder="Address"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Select Slab :</label>
+                                <select class="select2" name="slabid" id="slabid_u">
+                                    <option value="00000000-0000-0000-0000-000000000000" selected>-Select Slab-</option>
+                                    @foreach (Web.Framework.Entity.RechargeSlab el in ViewBag.Slab)
+                                    {
+                                        <option value="@el.slabid">@el.slabname</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="field-1" class="control-label">Select DMT Slab :</label>
+                                <select class="select2" name="dmt_slabid" id="slabid_dmt_u">
+                                    <option value="00000000-0000-0000-0000-000000000000" selected>-Select DMT Slab-</option>
+                                    @foreach (Web.Framework.Entity.DMT_Slab el in ViewBag.DmtSlab)
+                                    {
+                                        <option value="@el.dmtslabid">@el.dmtslabname</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" onclick="UpdateEntry();" class="btn btn-primary">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+@section scripts{
+    <script src="~/Content/select2/select2.min.js"></script>
+    <script type="text/javascript">
+        var tablelist;
+        function formatDate(ms) {
+            var date = new Date(parseInt(ms));
+            var hour = date.getHours();
+            var mins = date.getMinutes() + '';
+            var time = "AM";
+            // find time
+            if (hour >= 12) {
+                time = "PM";
+            }
+            // fix hours format
+            if (hour > 12) {
+                hour -= 12;
+            }
+            else if (hour == 0) {
+                hour = 12;
+            }
+            // fix minutes format
+            if (mins.length == 1) {
+                mins = "0" + mins;
+            }
+            // return formatted date time string
+            return (date.getDate().toString().length == 1 ? "0" : "") + (date.getDate()) + "/" + (date.getMonth().toString().length == 1 ? "0" : "") + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + hour + ":" + mins + " " + time;
+        }
+        $(document).ready(function () {
+            waitingDialog.show('Please Wait..');
+            tablelist = $('#tblDisplay').DataTable({
+                "processing": true,
+                "serverSide": true,
+                "responsive": true,
+                "sPaginationType": "full_numbers",
+                "info": true,
+                "lengthMenu": [[10, 50, 100, -1], [10, 50, 100, 200]],
+                "ajax": {
+                    "url": "@string.Format("{0}://{1}{2}", Request.Url.Scheme, Request.Url.Authority, Url.Content("~"))MasterDistributor/GetAll",
+                    "type": "POST", "datatype": "json"
+                },
+                "aoColumns": [
+                {
+                    data: "up_id", "bSearchable": true, "bSortable": true, "mRender": function (data, type, oObj) {
+                        return '<label class="form-label">' + formatDate(oObj.CreatedDateTime.substring(6, oObj.CreatedDateTime.length - 2)) + '</label>';
+                    }
+                },
+                { data: "up_username", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "up_mobile", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "up_email", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "up_address", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "UserLevelName", "bSearchable": true, "orderable": true, "orderable": true },
+                { data: "slabname", "bSearchable": true, "orderable": true, "orderable": true },
+                {
+                    data: "Status", "bSearcable": true, "bSortable": true, "mRender": function (data, type, oObj) {
+                        if (oObj.Status == 1) {
+                            return "<button type='button' class='btn btn-success btn-xs' onclick='StatusUpdate(&quot;" + oObj.up_id + "&quot;)'>Active</button>"
+                        } else { return "<button type='button' class='btn btn-danger btn-xs' onclick='StatusUpdate(&quot;" + oObj.up_id + "&quot;)'>De-Active</button>" }
+                    }
+                },
+                    {
+                        data: "up_id", "bSearchable": true, "bSortable": false, "mRender": function (data, type, oObj) {
+                            return ' <button type="button" class="btn btn-info btn-xs" onclick="EditEntry(/' + oObj.up_id + '/)">Edit</button>';
+                        },
+                    },
+                ],
+            });
+            waitingDialog.hide();
+            tablelist.init();
+            $('.select2').select2({
+                width: '100%'
+            });
+        });
+        function AddMD() {
+            $("#dvindexmessage").empty();
+            $("#dvmessage").empty();
+            $("#Mobile").val(""); $("#Email").val(""); $("#Password").val(""); $("#ConfirmPassword").val("");
+            $("#Address").val(""); $("#UserName").val("");
+            $("#slabid").val("00000000-0000-0000-0000-000000000000");
+            $('#slabid').trigger('change');
+            $('#myModal').modal('show');
+        }
+        function SaveEntry() {
+            waitingDialog.show('Please Wait..');
+            var frmModel = $("#frmMD").serialize();
+            $.post("../Account/MDRegister", frmModel, function (resdata) {
+                waitingDialog.hide();
+                if (resdata.EntryStatus == true) {
+                    $("#dvmessage").empty();
+                    tablelist.draw();
+                    $("#dvindexmessage").empty().append(resdata.MessageHtml);
+                    $("#Mobile").val(""); $("#Email").val(""); $("#Password").val(""); $("#ConfirmPassword").val("");
+                    $("#Address").val(""); $("#UserName").val("");
+                    $("#slabid").val("00000000-0000-0000-0000-000000000000");
+                    $('#slabid').trigger('change');
+                    $('#myModal').modal('hide');
+                    swal("Record Save Successfully", "", "success");
+                    tablelist.fnDraw();
+                } else {
+                    $("#dvindexmessage").empty();
+                    $("#dvmessage").empty().append(resdata.MessageHtml);
+                }
+            });
+        }
+        function RefreshMaster() { tablelist.draw(); }
+        function StatusUpdate(updateid) {
+            swal({
+                title: "Status",
+                text: "Are you sure to change Status...?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonClass: "btn-danger",
+                confirmButtonText: "Change Status",
+                closeOnConfirm: true
+            },
+                function () {
+                    waitingDialog.show();
+                    $.getJSON("../MasterDistributor/UpdateStatus/" + updateid, function (json) {
+                        waitingDialog.hide();
+                        if (json.EntryStatus == true) {
+                            tablelist.draw();
+                            SuccessNotify(json.Messages);
+                        } else {
+                            ErrorNotify(json.Messages);
+                            swal("Error", json.MessageHtml, "error")
+                        }
+                    });
+                });
+        }   
+        function EditEntry(editid) {
+            $("#up_id").val(editid);
+            $("#EntryMode").val('Edit');
+            $("#dvmessage").empty();
+            waitingDialog.show();
+            $.getJSON("../MasterDistributor/EditRecord/" + editid, function (json) {
+                waitingDialog.hide();
+                $("#up_username").val(json.Model.up_username);
+                $("#up_email").val(json.Model.up_email);
+                $("#up_address").val(json.Model.up_address);
+                $("#slabid_u").val(json.Model.slabid);
+                $("#slabid_u").trigger('change');
+
+                $("#slabid_dmt_u").val(json.Model.dmt_slabid);
+                $("#slabid_dmt_u").trigger('change');
+            });
+            $('#UpdateMyModal').modal('show');
+        }
+        function UpdateEntry() {
+            if ($("#up_username").val() == "" || $("#up_username").val() == " " || $("#up_username").val() == null)
+            {
+                ErrorNotify("User Name Required !");
+                return false;
+            }
+            if ($("#up_email").val() == "" || $("#up_email").val() == " " || $("#up_email").val() == null) {
+                ErrorNotify("Email Required !");
+                return false;
+            }
+            if ($("#up_address").val() == "" || $("#up_address").val() == " " || $("#up_address").val() == null) {
+                ErrorNotify("Address Required !");
+                return false;
+            }
+            if ($("#slabid_u").val() == "00000000-0000-0000-0000-000000000000" || $("#slabid_u").val() == " " || $("#slabid_u").val() == null) {
+                ErrorNotify("Slab Name Required !");
+                return false;
+            }
+            waitingDialog.show();
+            var frmModel2 = $("#frmUpdateMD").serialize();
+            $.post("../MasterDistributor/UpdateEntry", frmModel2, function (resdata) {
+                waitingDialog.hide();
+                if (resdata.EntryStatus == true) {
+                    $("#dvmessage").empty();
+                    $('#UpdateMyModal').modal('hide')
+                    swal("Record Update Successfully", "", "success");
+                    tablelist.fnDraw();
+                } else {
+                    $("#dvindexmessage").empty();
+                    $("#dvmessage").empty().append(resdata.MessageHtml);
+                }
+            });
+        }
+    </script>
+}

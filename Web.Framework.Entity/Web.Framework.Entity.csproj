@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A3A9F00E-100B-42E0-85C3-720C3283E82C}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Web.Framework.Entity</RootNamespace>
+    <AssemblyName>Web.Framework.Entity</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ActivityLog.cs" />
+    <Compile Include="APIDocument.cs" />
+    <Compile Include="Apis.cs" />
+    <Compile Include="ApplicationVersion.cs" />
+    <Compile Include="AuthResponse.cs" />
+    <Compile Include="CircleMaster.cs" />
+    <Compile Include="Complain.cs" />
+    <Compile Include="CountryMaster.cs" />
+    <Compile Include="CyberReponseClass.cs" />
+    <Compile Include="Dashboard.cs" />
+    <Compile Include="DMTSlabCommi.cs" />
+    <Compile Include="DMT_Approval.cs" />
+    <Compile Include="DMT_BeneficiaryRegister.cs" />
+    <Compile Include="DMT_Beneficiary_Status.cs" />
+    <Compile Include="DMT_CustomerRegister.cs" />
+    <Compile Include="DMT_CustomerValidate.cs" />
+    <Compile Include="DMT_DeleteBeneficiary.cs" />
+    <Compile Include="DMT_Documents.cs" />
+    <Compile Include="DMT_MoneyRemittance.cs" />
+    <Compile Include="DMT_OTP_Confirmation.cs" />
+    <Compile Include="DMT_Resend_OTP.cs" />
+    <Compile Include="DMT_Slab.cs" />
+    <Compile Include="DMT_SlabCommission.cs" />
+    <Compile Include="DMT_TransactionLog.cs" />
+    <Compile Include="ErrorLog.cs" />
+    <Compile Include="FundReport.cs" />
+    <Compile Include="IsEnabledApiCall.cs" />
+    <Compile Include="LedgerReport.cs" />
+    <Compile Include="Log.cs" />
+    <Compile Include="OperatorMapping.cs" />
+    <Compile Include="OperatorSetup.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Recharge.cs" />
+    <Compile Include="RechargeReport.cs" />
+    <Compile Include="RechargeSlab.cs" />
+    <Compile Include="RofferAPI.cs" />
+    <Compile Include="ROfferAPIResponse.cs" />
+    <Compile Include="RofferDetailReport.cs" />
+    <Compile Include="RofferMapped.cs" />
+    <Compile Include="Routing.cs" />
+    <Compile Include="ServiceMaster.cs" />
+    <Compile Include="SlabCommission.cs" />
+    <Compile Include="SMSMaster.cs" />
+    <Compile Include="StoreError.cs" />
+    <Compile Include="UserDeviceToken.cs" />
+    <Compile Include="UserProfile.cs" />
+    <Compile Include="WalletRequest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Web.Framework.Common\Web.Framework.Common.csproj">
+      <Project>{e8cb50a6-1fb1-4d31-bf03-d980c407bcb4}</Project>
+      <Name>Web.Framework.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

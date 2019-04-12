@@ -1,0 +1,78 @@
+﻿@using WsRecharge.Models;
+@using Microsoft.AspNet.Identity;
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@section styles{
+    <link rel="stylesheet" type="text/css" href="~/Content/select2/select2.css" />
+}
+<div class="row">
+    <div class="col-md-3">&nbsp;</div>
+    <div class="col-md-6">
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading"><h3 class="panel-title">Add Fund To Your Account</h3></div>
+            <form id="frmAddFund">
+                <div class="panel-body">
+                    <div id="dvmessage"></div>
+                    <div id="dvindexmessage"></div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Select Account</label>
+                        <select class="select2" name="up_userid" id="up_userid">
+                            <option value="00000000-0000-0000-0000-000000000000">--Select Your Account-- </option>
+                            <option value="@User.Identity.GetUserId()">@User.Identity.Name</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputEmail1">Amount</label>
+                        <input type="text" class="form-control numberonly" id="up_fundbalance" name="up_fundbalance" placeholder="Amount">
+                    </div>
+                    <div class="form-group">
+                        <label for="exampleInputPassword1">Login Password</label>
+                        <input type="password" class="form-control" id="up_password" name="up_password" placeholder="Password">
+                    </div>
+
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" onclick="SaveEntry();" class="btn btn-primary">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script src="~/Content/select2/select2.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('.select2').select2({
+                width: '100%'
+            });
+        });
+
+        function SaveEntry() {
+            waitingDialog.show('Please Wait...', { dialogSize: 'sm', progressType: 'info' });
+            var frmModel = $("#frmAddFund").serialize();
+            $.post("../AddFund/SaveEntry", frmModel, function (resdata) {
+                waitingDialog.hide();
+                if (resdata.EntryStatus == true) {
+                    $("#dvmessage").empty();
+                    $("#dvindexmessage").empty().append(resdata.MessageHtml);
+                    SuccessNotify(resdata.Message);
+                    ClearData();
+                } else {
+                    $("#dvindexmessage").empty();
+                    $("#dvmessage").empty().append(resdata.MessageHtml);
+                    ErrorNotify(resdata.Message);
+                }
+            });
+        }
+
+        function ClearData() {
+            $("#up_userid").val("00000000-0000-0000-0000-000000000000");
+            $("#up_userid").trigger('change');
+            $("#up_fundbalance").val('');
+            $("#up_password").val('');
+        }
+    </script>
+}

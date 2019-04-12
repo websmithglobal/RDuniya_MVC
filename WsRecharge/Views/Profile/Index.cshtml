@@ -1,0 +1,33 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="row">
+    <div class="col-sm-8">
+        <ul class="list-group">
+            <li class="list-group-item text-muted" contenteditable="false"><h3>User Profile</h3></li>
+            <li class="list-group-item text-right"><span class="pull-left"><strong class="">Customer Name:</strong></span><span  id="up_username"></span> </li>
+            <li class="list-group-item text-right"><span class="pull-left"><strong class="">Email Id:</strong></span> <span id="up_email"></span></li>
+            <li class="list-group-item text-right"><span class="pull-left"><strong class="">Mobile:</strong></span> <span id="up_mobile"></span></li>
+            <li class="list-group-item text-right"><span class="pull-left"><strong class="">User Level: </strong></span> <span id="UserLevelName"></span></li>
+            <li class="list-group-item text-right"><span class="pull-left"><strong class="">Address: </strong></span><span id="up_address"></span></li>
+            <li class="list-group-item text-right"><span class="pull-left"><strong class=""> </strong></span><input type="button" class="btn btn-primary" value="Edit Profile" />  </li>
+        </ul>
+    </div>
+</div>
+@section scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            waitingDialog.show('Please Wait...', { dialogSize: 'sm', progressType: 'info' });
+            $.getJSON("../Profile/GetUserProfile/", function (json) {
+                $("#up_username").text(json.Model.up_username);
+                $("#up_email").text(json.Model.up_email);
+                $("#up_mobile").text(json.Model.up_mobile);
+                $("#UserLevelName").text(json.Model.UserLevelName);
+                $("#Status").text(json.Model.Status);
+                $("#up_address").text(json.Model.up_address);
+            });
+            waitingDialog.hide();
+        });
+    </script>
+}
