@@ -136,14 +136,13 @@ html {
 
 /******** 2. Left Panel (aside navigation) ********/
 aside.left-panel {
-  background-color: #002D3A;
-  box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.05);
-  width: 250px;
-  position: fixed;
-  height: 100%;
-  top: 0px;
-  left: 0px;
-  
+    background-color: #0e3367; /*#002D3A;*/
+    box-shadow: 1px 1px 0px rgba(0, 0, 0, 0.05);
+    width: 250px;
+    position: fixed;
+    height: 100%;
+    top: -40px;
+    left: 0px;
 }
 
 aside.left-panel.collapsed {
@@ -254,8 +253,8 @@ aside.left-panel.collapsed .navigation > ul > li > a .badge {
 .navigation > ul > li:hover > a,
 .navigation > ul > li.active:hover > a,
 .navigation > ul > li.active > a {
-    color: #2f353f; /*#FFFFFF;*/
-    background: #EBD835; /*#D3227F;*/
+    color: #FFFFFF;  /*#2f353f; */
+    background: #d74548; /*#EBD835;*/ /*#D3227F;*/
 }
 
 .navigation ul li a i {
@@ -307,7 +306,7 @@ aside:not(.collapsed) .navigation ul li.active ul {
 
 .navigation ul li ul li.active a {
     /*color: #2F353F !important;*/
-    color: #FFF000 !important;
+    color: #D74548 !important; /*#FFF000*/
 }
 
 

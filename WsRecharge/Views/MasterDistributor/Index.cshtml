@@ -11,7 +11,7 @@
 
     <div class="col-md-12">
         <span class="pull-right">
-            <button class="btn btn-inverse" onclick="AddMD();"><i class="fa fa-plus-square-o"></i>&nbsp;Add Master Dist</button>
+            <button class="btn btn-primary" onclick="AddMD();"><i class="fa fa-plus-square-o"></i>&nbsp;Add Master Dist</button>
             <button class="btn btn-inverse" type="button" onclick="RefreshMaster();"><i class="fa fa-refresh"></i></button>
         </span>
     </div>
@@ -123,10 +123,10 @@
                                 <label for="field-1" class="control-label">Select DMT Slab :</label>
                                 <select class="select2" name="dmt_slabid" id="slabid_dmt">
                                     <option value="00000000-0000-0000-0000-000000000000" selected>-Select DMT Slab-</option>
-                                    @foreach (Web.Framework.Entity.DMT_Slab el in ViewBag.DmtSlab)
+                                    @*@foreach (Web.Framework.Entity.DMT_Slab el in ViewBag.DmtSlab)
                                     {
                                         <option value="@el.dmtslabid">@el.dmtslabname</option>
-                                    }
+                                    }*@
                                 </select>
                             </div>
                         </div>
@@ -134,8 +134,8 @@
                 </div>
             </form>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" onclick="SaveEntry();" class="btn btn-primary">Save</button>
+                <button type="button" data-dismiss="modal" class="btn btn-default">Close</button>
+                <button type="button" onclick="SaveEntry();" class="btn btn-custom">Save</button>
             </div>
         </div>
     </div>
@@ -197,10 +197,10 @@
                                 <label for="field-1" class="control-label">Select DMT Slab :</label>
                                 <select class="select2" name="dmt_slabid" id="slabid_dmt_u">
                                     <option value="00000000-0000-0000-0000-000000000000" selected>-Select DMT Slab-</option>
-                                    @foreach (Web.Framework.Entity.DMT_Slab el in ViewBag.DmtSlab)
+                                    @*@foreach (Web.Framework.Entity.DMT_Slab el in ViewBag.DmtSlab)
                                     {
                                         <option value="@el.dmtslabid">@el.dmtslabname</option>
-                                    }
+                                    }*@
                                 </select>
                             </div>
                         </div>
@@ -208,8 +208,8 @@
                 </div>
             </form>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" onclick="UpdateEntry();" class="btn btn-primary">Update</button>
+                <button type="button" data-dismiss="modal" class="btn btn-default">Close</button>
+                <button type="button" onclick="UpdateEntry();" class="btn btn-custom">Update</button>
             </div>
         </div>
     </div>
@@ -269,7 +269,7 @@
                 {
                     data: "Status", "bSearcable": true, "bSortable": true, "mRender": function (data, type, oObj) {
                         if (oObj.Status == 1) {
-                            return "<button type='button' class='btn btn-success btn-xs' onclick='StatusUpdate(&quot;" + oObj.up_id + "&quot;)'>Active</button>"
+                            return "<button type='button' class='btn btn-primary btn-xs' onclick='StatusUpdate(&quot;" + oObj.up_id + "&quot;)'>Active</button>"
                         } else { return "<button type='button' class='btn btn-danger btn-xs' onclick='StatusUpdate(&quot;" + oObj.up_id + "&quot;)'>De-Active</button>" }
                     }
                 },

@@ -516,6 +516,7 @@
     <Content Include="img\img_2.jpg" />
     <Content Include="img\loginbackground.png" />
     <Content Include="img\logo.png" />
+    <Content Include="img\profile_small.jpg" />
     <Content Include="img\ws-logo.png" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\datatables.init.js" />

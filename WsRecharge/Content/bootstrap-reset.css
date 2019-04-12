@@ -129,7 +129,7 @@ ul, ol {
 }
 
 .panel.panel-info .panel-heading {
-    background-color: #3fb7ee;
+    background-color: #0e3367; /*#3fb7ee;*/
     color: #fff;
 }
 
@@ -144,7 +144,7 @@ ul, ol {
 }
 
 .panel.panel-inverse .panel-heading {
-    background-color: #DFD13D; /*#9840AF;*/
+    background-color: #FFFFFF; /*#DFD13D;*/
     color: #fff;
 }
 
@@ -231,6 +231,7 @@ ul, ol {
 .btn {
     border-radius: 2px;
     padding: 6px 16px;
+    margin-bottom: 5px;
 }
 
 .btn-group-lg > .btn,
@@ -310,8 +311,8 @@ ul, ol {
     }
 
 .btn-primary {
-    background-color: #3960d1 !important;
-    border: 1px solid #3960d1 !important;
+    background-color: #29a876 !important; /*#3960d1*/
+    border: 1px solid #29a876 !important;
 }
 
     .btn-primary:hover,
@@ -323,8 +324,8 @@ ul, ol {
     .btn-primary:focus,
     .btn-primary:hover,
     .open > .dropdown-toggle.btn-primary {
-        background-color: #3356bc !important;
-        border: 1px solid #3356bc !important;
+        background-color: #20bf7f !important; /*#3356bc */
+        border: 1px solid #20bf7f !important;
     }
 
 .btn-success {
@@ -430,15 +431,15 @@ ul, ol {
     }
 
 .btn-custom {
-    background-color: #417592 !important;
-    border: 1px solid #417592 !important;
+    background-color: #0E3367 !important; /*#417592*/
+    border: 1px solid #0E3367 !important;
 }
 
     .btn-custom:hover,
     .btn-custom:focus,
     .btn-custom:active {
-        background-color: #28536b !important;
-        border: 1px solid #28536b !important;
+        background-color: #37629e !important; /*#28536b*/
+        border: 1px solid #37629e !important;
     }
 
 .btn-pink {

@@ -2,14 +2,14 @@
     line-height: 24px !important;
 }
 .skin-blue {
-    background: linear-gradient(to right, rgb(236, 217, 54),rgb(57, 112, 151));
+    background: linear-gradient(to right, rgb(14, 51, 103),rgb(14, 51, 103)); /*to right, rgb(236, 217, 54),rgb(57, 112, 151)*/
 }
 .logo2 {
-    background: linear-gradient(to right, rgb(235, 216, 53),rgb(236, 217, 54)); /*(to right, rgb(96, 98, 233),rgb(95, 99, 234));*/
+    background: linear-gradient(to right, rgb(255, 255, 255),rgb(255, 255, 255)); /*to right, rgb(14, 51, 103),rgb(215, 69, 72)*/
     background-color: rgba(0, 0, 0, 0);
     color: #fff;
     border-bottom: 0 solid transparent;
-    height: 60px;
+    height: 100px;
 }
 .skin-blueNav {
     background-color: #002D3A;
