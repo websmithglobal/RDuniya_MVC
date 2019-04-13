@@ -17,6 +17,7 @@ namespace WsRecharge.Controllers
         List<ENT.UserProfile> lstEntity = new List<ENT.UserProfile>();
         BAL.UserProfile objBAL = new BAL.UserProfile();
         ENT.UserProfile Model;
+       
         // GET: MasterDistributor
         public ActionResult Index()
         {
@@ -24,6 +25,7 @@ namespace WsRecharge.Controllers
             ViewBag.Slab = new BAL.RechargeSlab().GetAllSlab();
             return View();
         }
+
         [HttpPost]
         [Authorize]
         public JsonResult GetAll()
@@ -62,7 +64,6 @@ namespace WsRecharge.Controllers
         {
             try
             {
-
                 model.UpdatedDateTime = DateTime.Now;
                 model.UpdatedBy = Guid.Parse(User.Identity.GetUserId());
                 model.up_id = new Guid(up_id.Replace("/", ""));
@@ -73,7 +74,6 @@ namespace WsRecharge.Controllers
                     //  ApplicationUser currentUser = UserManager.FindById(id);
                     var user = new ApplicationUser();
                     user.Email = model.up_email;
-
 
                     GlobalVarible.AddMessage("Record Update Successfully");
                 }
@@ -122,6 +122,7 @@ namespace WsRecharge.Controllers
             MySession.Current.MessageResult.MessageHtml = GlobalVarible.GetMessageHTML();
             return Json(MySession.Current.MessageResult, JsonRequestBehavior.AllowGet);
         }
+
         [HttpGet]
         [Authorize]
         public JsonResult EditRecord(string id)

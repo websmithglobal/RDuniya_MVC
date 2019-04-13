@@ -253,8 +253,8 @@ aside.left-panel.collapsed .navigation > ul > li > a .badge {
 .navigation > ul > li:hover > a,
 .navigation > ul > li.active:hover > a,
 .navigation > ul > li.active > a {
-    color: #FFFFFF;  /*#2f353f; */
-    background: #d74548; /*#EBD835;*/ /*#D3227F;*/
+    color: #FFFFFF; /*#0e3367*/
+    background: #d74548; /*#efdc4a*/
 }
 
 .navigation ul li a i {
@@ -305,8 +305,7 @@ aside:not(.collapsed) .navigation ul li.active ul {
 }
 
 .navigation ul li ul li.active a {
-    /*color: #2F353F !important;*/
-    color: #D74548 !important; /*#FFF000*/
+    color: #D74548 !important; /*#efdc4a */
 }
 
 
