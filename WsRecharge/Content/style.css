@@ -141,7 +141,7 @@ aside.left-panel {
     width: 250px;
     position: fixed;
     height: 100%;
-    top: -40px;
+    top: 0px;  /*-40px*/
     left: 0px;
 }
 
@@ -163,7 +163,7 @@ aside.left-panel.lg + .content {
 .logo {
   text-align: center;
   background-color: #2f353f;
-  /*padding: 14px 10px 13px;*/
+  padding: 14px 10px 13px;
   position: fixed;
   right: 0;
   left: 0;

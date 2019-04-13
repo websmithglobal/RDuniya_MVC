@@ -81,43 +81,60 @@
     </div>
 
     <div class="col-md-3">
-        <ul class="list-group">
-            <li class="list-group-item active">
-                <strong>STATUS</strong>
-                <button class="btn btn-inverse m-b-5 btn-xs btn-rounded pull-right" onclick="refreshStatastics()">
-                    <i class="zmdi zmdi-refresh"></i>&nbsp;
-                    Refresh
-                </button>
-            </li>
-            <li class="list-group-item">
-                <span class="badge bg-primary"><strong id="totlacustomer">@Model.TotalCustomers</strong></span>
-                <strong>Total Customers :</strong>
-            </li>
-            <li class="list-group-item">
-                <span class="badge bg-success"><strong id="totalbalance">@Model.TotalBalance</strong></span>
-                <strong>Account Balance :</strong>
-            </li>
-            <li class="list-group-item">
-                <span class="badge bg-pink"><strong id="totalfailed">@Model.TotalFailed</strong></span>
-                <strong>Today's Failed :</strong>
-            </li>
-            <li class="list-group-item">
-                <span class="badge bg-success"><strong id="totalsuccess">@Model.TotalSuccess</strong></span>
-                <strong>Today's Success :</strong>
-            </li>
-            <li class="list-group-item">
-                <span class="badge bg-pink"><strong id="walletrequest">@Model.WalletRequests</strong></span>
-                <strong>Pending Wallet Request :</strong>
-            </li>
-        </ul>
+        <div class="panel panel-color panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">STATUS</h3>
+                <div class="pull-right" style="margin-top:-20px;">
+                    <button class="btn btn-danger m-b-5 btn-xs btn-rounded" onclick="refreshStatastics()">
+                        <i class="zmdi zmdi-refresh"></i>&nbsp;
+                        Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <ul class="list-group">
+                            @*<li class="list-group-item active">
+                                <strong>STATUS</strong>
+                                <button class="btn btn-inverse m-b-5 btn-xs btn-rounded pull-right" onclick="refreshStatastics()">
+                                    <i class="zmdi zmdi-refresh"></i>&nbsp;
+                                    Refresh
+                                </button>
+                            </li>*@
+                            <li class="list-group-item">
+                                <span class="badge bg-primary"><strong id="totlacustomer">@Model.TotalCustomers</strong></span>
+                                <strong>Total Customers :</strong>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge bg-success"><strong id="totalbalance">@Model.TotalBalance</strong></span>
+                                <strong>Account Balance :</strong>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge bg-pink"><strong id="totalfailed">@Model.TotalFailed</strong></span>
+                                <strong>Today's Failed :</strong>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge bg-success"><strong id="totalsuccess">@Model.TotalSuccess</strong></span>
+                                <strong>Today's Success :</strong>
+                            </li>
+                            <li class="list-group-item">
+                                <span class="badge bg-pink"><strong id="walletrequest">@Model.WalletRequests</strong></span>
+                                <strong>Pending Wallet Request :</strong>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <div class="col-md-12">
-        <div class="panel panel-color panel-warning">
+        <div class="panel panel-color panel-info">
             <div class="panel-heading">
                 <h3 class="panel-title">
                     PENDING RECHARGE
-                    <button class="btn btn-inverse m-b-5 btn-xs btn-rounded pull-right" onclick="refreshPending()">
+                    <button class="btn btn-danger m-b-5 btn-xs btn-rounded pull-right" onclick="refreshPending()">
                         <i class="zmdi zmdi-refresh"></i>&nbsp;
                         Refresh
                     </button>
@@ -382,7 +399,7 @@
                        "targets": [@(User.IsInRole("administrator") ? 7 : 0)],
                        "visible": false
                    },
-                   
+
                 ]
             });
         }
