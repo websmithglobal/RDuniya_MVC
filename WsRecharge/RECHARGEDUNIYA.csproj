@@ -539,6 +539,7 @@
     <Content Include="Scripts\wow.min.js" />
     <Content Include="ui-bootstrap.html" />
     <None Include="Connected Services\SRService\SRService.wsdl" />
+    <None Include="Properties\PublishProfiles\FolderProfile1.pubxml" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
