@@ -18,6 +18,7 @@ namespace WsRecharge.Controllers
 
         BAL.RechargeSlab objBAL = new BAL.RechargeSlab();
         BAL.SlabCommission objBAL2 = new BAL.SlabCommission();
+      
         // GET: RechargeSlab
         public ActionResult Index()
         {
@@ -106,6 +107,7 @@ namespace WsRecharge.Controllers
                 data = lstEntity
             }, JsonRequestBehavior.AllowGet);
         }
+
         [HttpPost]
         [Authorize]
         public JsonResult SaveAll(String[] hfoperatorcode, String[] md, String[] sd, String[] r, String[] charge, Guid rechargeslabid2)

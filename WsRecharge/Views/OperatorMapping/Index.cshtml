@@ -172,8 +172,7 @@
             });
         });
         function OperatorMapping() {
-            $("#dvindexmessage").empty();
-            $("#dvmessage").empty();
+            clearData();
             $('#myModal').modal('show');
         }
         function SaveEntry() {
@@ -198,7 +197,7 @@
             $.post("../OperatorMapping/SaveEntry", frmModel, function (resdata) {
                 waitingDialog.hide();
                 if (resdata.EntryStatus == true) {
-                    $("#dvmessage").empty();
+                    clearData();
                     tablelist.draw();
                     $('#myModal').modal('hide');
                     swal("Record Save Successfully", "", "success")
@@ -248,6 +247,18 @@
                     });
 
                 });
+            }
+        function clearData() {
+            $("#dvindexmessage").empty();
+            $("#dvmessage").empty();
+            $("#EntryMode").val('');
+            $("#operatormapid").val('');
+            $("#apiid").val('00000000-0000-0000-0000-000000000000');
+            $('#apiid').trigger('change');
+            $("#operatorid").val('00000000-0000-0000-0000-000000000000');
+            $('#operatorid').trigger('change');
+            $("#operatornomal").val('');
+            $("#operatorspecial").val('');
         }
     </script>
 }

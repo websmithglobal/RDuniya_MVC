@@ -31,8 +31,9 @@ namespace WsRecharge.Controllers
                 List<Guid> dctDuplication = new List<Guid>();
                 if (model.EntryMode == COM.Enumration.EntryMode.ADD)
                 {
+                    model.name = model.nicename.ToUpper();
                     model.Status = COM.MyEnumration.MyStatus.Active;
-                    List<ENT.CountryMaster> lstResult = new BAL.CountryMaster().CheckDuplicateCombination(dctDuplication, model.name, "none");
+                    List<ENT.CountryMaster> lstResult = new BAL.CountryMaster().CheckDuplicateCombination(dctDuplication, model.nicename, "none");
                     if (lstResult.Count > 0)
                     {
                         throw new Exception("Country Name Already Exists.");
@@ -44,6 +45,7 @@ namespace WsRecharge.Controllers
                 }
                 else
                 {
+                    model.name = model.nicename.ToUpper();
                     model.UpdatedDateTime = DateTime.Now;
                     model.UpdatedBy = Guid.Parse(User.Identity.GetUserId());
                     model.countryid = new Guid(countryid.Replace("/", ""));

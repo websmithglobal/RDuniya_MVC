@@ -55,20 +55,38 @@
                 <div class="modal-body">
                     <div id="dvmessage"></div>
                     @*<div id="dvindexmessage"></div>*@
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-1" class="control-label">Country Name :</label>
-                                <input type="text" class="form-control" id="countryname" maxlength="50" name="countryname" placeholder="Country Name">
-                            </div>
-                        </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label for="field-1" class="control-label">Country Code :</label>
-                                <input type="text" class="form-control" id="countrycode" maxlength="50" name="countrycode" placeholder="Country Code">
-                            </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-1" class="control-label">Country Name :</label>
+                            <input type="text" class="form-control" id="nicename" maxlength="50" name="nicename" placeholder="Country Name">
                         </div>
                     </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-1" class="control-label">Country Code :</label>
+                            <input type="text" class="form-control" id="isocode" maxlength="2" name="isocode" placeholder="Country Code">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-1" class="control-label">ISO-3 :</label>
+                            <input type="text" class="form-control" id="iso3" maxlength="3" name="iso3" placeholder="ISO-3 Code">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-1" class="control-label">Number Code :</label>
+                            <input type="text" class="form-control" id="numcode" maxlength="5" name="numcode" placeholder="Number Code">
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label for="field-1" class="control-label">Phone Code :</label>
+                            <input type="text" class="form-control" id="phonecode" maxlength="5" name="phonecode" placeholder="Phone Code">
+                        </div>
+                    </div>
+                </div>
                 </div>
             </form>
             <div class="modal-footer">
@@ -106,7 +124,7 @@
             // return formatted date time string
             return (date.getDate().toString().length == 1 ? "0" : "") + (date.getDate()) + "/" + (date.getMonth().toString().length == 1 ? "0" : "") + (date.getMonth() + 1) + "/" + date.getFullYear() + " " + hour + ":" + mins + " " + time;
         }
-
+    
         $(document).ready(function () {
             waitingDialog.show('Please Wait..');
             tablelist = $('#tblDisplay').DataTable({
@@ -153,21 +171,40 @@
             });
         });
 
+        function RefreshMaster() { tablelist.draw(); }
+
         function AddCountry() {
             $("#dvindexmessage").empty();
             $("#dvmessage").empty();
-            $("#countryname").val("");
-            $("#countrycode").val("");
+            $("#EntryMode").val('');
+            $("#countryid").val('');
+            $("#nicename").val('');
+            $("#isocode").val('');
+            $("#iso3").val('');
+            $("#numcode").val('');
+            $("#phonecode").val('');
             $('#myModal').modal('show');
         }
 
         function SaveEntry() {
-            if ($("#countryname").val() == "" || $("#countryname").val() == " " || $("#countryname").val() == null) {
+            if ($("#nicename").val() == "" || $("#nicename").val() == " " || $("#nicename").val() == null) {
                 ErrorNotify("Country name Reqiuerd !");
                 return false;
             }
-            if ($("#countrycode").val() == "" || $("#countrycode").val() == " " || $("#countrycode").val() == null) {
+            if ($("#isocode").val() == "" || $("#isocode").val() == " " || $("#isocode").val() == null) {
                 ErrorNotify("Country Code Reqiuerd !");
+                return false;
+            }
+             if ($("#iso3").val() == "" || $("#iso3").val() == " " || $("#iso3").val() == null) {
+                ErrorNotify("Country ISO-3 Code Reqiuerd !");
+                return false;
+            }
+             if ($("#numcode").val() == "" || $("#numcode").val() == " " || $("#numcode").val() == null) {
+                ErrorNotify("Country Number Code Reqiuerd !");
+                return false;
+            }
+             if ($("#phonecode").val() == "" || $("#phonecode").val() == " " || $("#phonecode").val() == null) {
+                ErrorNotify("Country Phone Code Reqiuerd !");
                 return false;
             }
             waitingDialog.show();
@@ -177,8 +214,11 @@
                     waitingDialog.hide();
                     $("#dvmessage").empty();
                     tablelist.draw();
-                    $("#countryname").val("");
-                    $("#countrycode").val("");
+                    $("#nicename").val('');
+                    $("#isocode").val('');
+                    $("#iso3").val('');
+                    $("#numcode").val('');
+                    $("#phonecode").val('');
                     $('#myModal').modal('hide');
                     swal("Record Save Successfully", "", "success");
                     tablelist.fnDraw();
@@ -220,8 +260,11 @@
             $.getJSON("../CountryMaster/EditRecord/" + editid, function (json) {
                 waitingDialog.hide();
                 $("#tblUserList").dataTable().fnDraw();
-                $("#countryname").val(json.Model.countryname);
-                $("#countrycode").val(json.Model.countrycode);
+                $("#nicename").val(json.Model.nicename);
+                $("#isocode").val(json.Model.isocode);
+                $("#iso3").val(json.Model.iso3);
+                $("#numcode").val(json.Model.numcode);
+                $("#phonecode").val(json.Model.phonecode);
             });
             $('#myModal').modal('show');
         }

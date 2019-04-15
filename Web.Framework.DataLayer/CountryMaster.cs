@@ -40,7 +40,7 @@ namespace Web.Framework.DataLayer
                 {
                     QueryDisctionery.ParameterPart = "where  nicename like '%" + search + "%'";
                 }
-                QueryDisctionery.OrderPart = "order by CreatedDateTime desc";
+                QueryDisctionery.OrderPart = "order by CreatedDateTime desc, name";
                 //Execute Query and get SQLDataReader
                 using (SqlDataReader dr = objDBHelper.ExecuteReaderQuery(QueryDisctionery, parFields, objEntity))
                 {
@@ -96,11 +96,9 @@ namespace Web.Framework.DataLayer
         {
             try
             {
-
-
                 QueryDisctionery.SelectPart = "SELECT TOP 1 countryid";
                 QueryDisctionery.TablePart = @"FROM  CountryMaster ";
-                QueryDisctionery.ParameterPart += " WHERE countryname ='" + strname + "' ";
+                QueryDisctionery.ParameterPart += " WHERE nicename ='" + strname + "' ";
 
                 using (SqlDataReader dr = objDBHelper.ExecuteReaderQuery(QueryDisctionery, parFields, objEntity))
                 {

@@ -271,8 +271,7 @@
             else { $("#simtraydiv").css('display', 'none'); $("#smartdiv").css('display', 'none'); $("#apidiv").css('display', 'none'); }
         }
         function AddRouting() {
-            $("#dvindexmessage").empty();
-            $("#dvmessage").empty();
+            clearData();
             $('#myModal').modal('show');
         }
         function RefreshMaster() { tablelist.draw(); }
@@ -284,7 +283,8 @@
             if ($("#operatorid").val() == "00000000-0000-0000-0000-000000000000" || $("#operatorid").val() == " " || $("#operatorid").val() == null) {
                 ErrorNotify("Operator Required");
                 return false;
-            } if ($("#amountmethod").val() == "00000000-0000-0000-0000-000000000000" || $("#amountmethod").val() == " " || $("#amountmethod").val() == null) {
+            }
+            if ($("#amountmethod").val() == "00000000-0000-0000-0000-000000000000" || $("#amountmethod").val() == " " || $("#amountmethod").val() == null) {
                 ErrorNotify("Operator Required");
                 return false;
             }
@@ -294,24 +294,7 @@
                 waitingDialog.hide();
                 if (resdata.EntryStatus == true) {
                     tablelist.draw();
-                    $("#routetitle").val('');
-                    $("#operatorid").val('00000000-0000-0000-0000-000000000000');
-                    $('#operatorid').trigger('change');
-                    $("#amountmethod").val('-1');
-                    $('#amountmethod').trigger('change');
-                    $("#rechargemethod").val('-1');
-                    $('#rechargemethod').trigger('change');
-                    $("#amountSpecific").val('');
-                    $("#amountrangefrom").val('');
-                    $("#amountrangeto").val('');
-                    $("#apiid").val('00000000-0000-0000-0000-000000000000');
-                    $('#apiid').trigger('change');
-                    $("#machineid").val('00000000-0000-0000-0000-000000000000');
-                    $('#machineid').trigger('change');
-                    $("#smartid").val('00000000-0000-0000-0000-000000000000');
-                    $('#smartid').trigger('change');
-                    $("#amtrangediv").css('display', 'none');
-                    $("#amtspecificdiv").css('display', 'none');
+                    clearData();
                     $('#myModal').modal('hide');
                     swal("Record Save Successfully", "", "success")
                     tablelist.fnDraw();
@@ -406,6 +389,30 @@
                 }
             });
             $('#myModal').modal('show');
-        }
+            }
+        function clearData() {
+            $("#dvindexmessage").empty();
+            $("#dvmessage").empty();
+            $("#EntryMode").val('');
+            $("#routeid").val('');
+            $("#routetitle").val('');
+            $("#operatorid").val('00000000-0000-0000-0000-000000000000');
+            $('#operatorid').trigger('change');
+            $("#amountmethod").val('-1');
+            $('#amountmethod').trigger('change');
+            $("#rechargemethod").val('-1');
+            $('#rechargemethod').trigger('change');
+            $("#amountSpecific").val('');
+            $("#amountrangefrom").val('');
+            $("#amountrangeto").val('');
+            $("#apiid").val('00000000-0000-0000-0000-000000000000');
+            $('#apiid').trigger('change');
+            $("#machineid").val('00000000-0000-0000-0000-000000000000');
+            $('#machineid').trigger('change');
+            $("#smartid").val('00000000-0000-0000-0000-000000000000');
+            $('#smartid').trigger('change');
+            $("#amtrangediv").css('display', 'none');
+            $("#amtspecificdiv").css('display', 'none');
+         }
     </script>
 }

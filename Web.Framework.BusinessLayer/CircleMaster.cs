@@ -112,8 +112,8 @@ namespace Web.Framework.BusinessLayer
                 Dictionary<string, bool> dctFields = new Dictionary<string, bool>();
                 dctFields.Add(COM.HelperMethod.PropertyName<ENT.CircleMaster>(x => x.circleid), true);
                 dctFields.Add(COM.HelperMethod.PropertyName<ENT.CircleMaster>(x => x.circle_name), false);
+                dctFields.Add(COM.HelperMethod.PropertyName<ENT.CircleMaster>(x => x.circle_code), false);
                 dctFields.Add(COM.HelperMethod.PropertyName<ENT.CircleMaster>(x => x.countryid), false);
-               
                 dctFields.Add(COM.HelperMethod.PropertyName<ENT.CircleMaster>(x => x.UpdatedBy), false);
                 dctFields.Add(COM.HelperMethod.PropertyName<ENT.CircleMaster>(x => x.UpdatedDateTime), false);
                 objEntity.FieldCollection = dctFields;

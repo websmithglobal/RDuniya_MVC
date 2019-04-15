@@ -92,7 +92,8 @@
                 url: "/RechargeSlab/GetSlab",
                 async: false,
                 data: null,
-                contentType: "application/json", dataType: "json",
+                contentType: "application/json",
+                dataType: "json",
                 success: function (mRes) {
                     waitingDialog.hide();
                     if (mRes.length > 0) {
@@ -129,7 +130,8 @@
             });
         }
         function GetAll() {
-                tablelist = $('#tblDisplay').DataTable({
+            waitingDialog.show('Please Wait..');
+            tablelist = $('#tblDisplay').DataTable({
                 "processing": true,
                 "serverSide": true,
                 "destroy": true,
@@ -173,7 +175,7 @@
                     },
                 ],
             });
-
+            waitingDialog.hide();
         }
         function SaveAll() {
             waitingDialog.show('Please Wait...', { dialogSize: 'sm', progressType: 'info' });
