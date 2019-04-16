@@ -545,7 +545,7 @@ ul, ol {
 }
 
     .form-control:focus {
-        border: 1px solid #e0e0e0;
+        border: 1px solid #20BF7F !important; /*#e0e0e0*/
         background: #FFF;
         box-shadow: none;
     }
